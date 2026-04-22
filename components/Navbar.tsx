@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Category, User } from '../types';
 import BeeCharacter from './BeeCharacter';
+import brandLogo from '../assets/brand-logo.png';
 
 interface NavbarProps {
   cartCount: number;
@@ -100,7 +101,7 @@ const Navbar: React.FC<NavbarProps> = ({
             {/* Logo Container */}
             <div className="flex items-center cursor-pointer group shrink-0 relative" onClick={onNavigateHome}>
               <img
-                src="/assets/brand-logo.png"
+                src={brandLogo}
                 alt="SINGGLEBEE Logo"
                 className={`${scrolled ? 'h-10 sm:h-12 md:h-20' : 'h-12 sm:h-16 md:h-28'} w-auto transition-all duration-500 group-hover:scale-105`}
               />
