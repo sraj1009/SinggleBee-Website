@@ -114,9 +114,18 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, subtotal
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate required fields
-    if (!formData.name || !formData.email || !formData.phone || !formData.address || !formData.city || !formData.state || !formData.zip) {
-      setSubmissionError('Please fill in all required fields');
+    // Validate required fields explicitly to show exactly what's missing
+    const missingFields: string[] = [];
+    if (!formData.name.trim()) missingFields.push('Name');
+    if (!formData.email.trim()) missingFields.push('Email');
+    if (!formData.phone.trim()) missingFields.push('Phone');
+    if (!formData.address.trim()) missingFields.push('Address');
+    if (!formData.city.trim()) missingFields.push('City');
+    if (!formData.state.trim()) missingFields.push('State');
+    if (!formData.zip.trim()) missingFields.push('Pin Code');
+
+    if (missingFields.length > 0) {
+      setSubmissionError(`Please fill in: ${missingFields.join(', ')}`);
       return;
     }
     if (!isValidEmail(formData.email)) {
