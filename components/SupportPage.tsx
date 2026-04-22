@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import BeeCharacter from './BeeCharacter';
 
+import { formspreeService } from '../services/formspree';
+
 export type SupportPageType = 'help' | 'returns' | 'shipping' | 'contact' | 'about' | 'terms';
 
 interface SupportPageProps {
@@ -18,26 +20,11 @@ const SupportPage: React.FC<SupportPageProps> = ({ page, onBack, onNavigate }) =
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const response = await fetch("https://formspree.io/f/mlggdqro", {
-        method: "POST",
-        body: JSON.stringify({
-          ...contactForm,
-          _subject: `🍯 New Contact Buzz from ${contactForm.name}`
-        }),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        setSubmitted(true);
-      } else {
-        // Fallback for UI if API fails but we want to show a success state anyway for demo
-        setSubmitted(true);
-      }
+      await formspreeService.submitContact(contactForm);
+      setSubmitted(true);
     } catch (err) {
       console.error("Submission error:", err);
+      // Fallback for UI if API fails but we want to show a success state anyway for demo
       setSubmitted(true);
     } finally {
       setIsSubmitting(false);
@@ -48,19 +35,19 @@ const SupportPage: React.FC<SupportPageProps> = ({ page, onBack, onNavigate }) =
     switch (page) {
       case 'about':
         return (
-          <div className="max-w-4xl mx-auto space-y-16 animate-fade-in">
+          <div className="max-w-4xl mx-auto space-y-8 sm:space-y-12 md:space-y-16 animate-fade-in px-1">
             <div className="text-center">
-              <div className="w-24 h-24 bg-brand-primary rounded-[2rem] flex items-center justify-center shadow-2xl mx-auto mb-8 animate-float">
-                <BeeCharacter size="4rem" />
+              <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-brand-primary rounded-[1.5rem] sm:rounded-[2rem] flex items-center justify-center shadow-2xl mx-auto mb-4 sm:mb-6 md:mb-8 animate-float">
+                <BeeCharacter size="3rem" />
               </div>
-              <h1 className="text-6xl font-black text-brand-black mb-6 tracking-tighter">The SinggleBee Story</h1>
-              <p className="text-xl text-gray-500 font-medium leading-relaxed max-w-2xl mx-auto">
+              <h1 className="text-3xl sm:text-4xl md:text-6xl font-black text-brand-black mb-3 sm:mb-4 md:mb-6 tracking-tighter">The SinggleBee Story</h1>
+              <p className="text-sm sm:text-base md:text-xl text-gray-500 font-medium leading-relaxed max-w-2xl mx-auto">
                 We believe that every family is a hive, and every hive deserves the sweetest nourishment for the mind and body.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-              <div className="bg-white p-10 rounded-[4rem] shadow-premium border-2 border-brand-primary/5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-12">
+              <div className="bg-white p-5 sm:p-7 md:p-10 rounded-[1.5rem] sm:rounded-[2.5rem] md:rounded-[4rem] shadow-premium border-2 border-brand-primary/5">
                 <h3 className="text-2xl font-black text-brand-black mb-6">🌟 Our Mission</h3>
                 <div className="space-y-4 text-gray-500 font-bold leading-relaxed text-sm md:text-base">
                   <p>
@@ -77,7 +64,7 @@ const SupportPage: React.FC<SupportPageProps> = ({ page, onBack, onNavigate }) =
                   </p>
                 </div>
               </div>
-              <div className="bg-brand-black p-10 rounded-[4rem] shadow-premium relative overflow-hidden text-white">
+              <div className="bg-brand-black p-5 sm:p-7 md:p-10 rounded-[1.5rem] sm:rounded-[2.5rem] md:rounded-[4rem] shadow-premium relative overflow-hidden text-white">
                 <div className="absolute inset-0 bg-brand-primary/10 honey-blob blur-3xl opacity-30"></div>
                 <h3 className="text-2xl font-black text-brand-primary mb-6 relative z-10">🐝 Why Bees?</h3>
                 <div className="space-y-4 text-gray-400 font-bold leading-relaxed text-sm md:text-base relative z-10">
@@ -105,13 +92,13 @@ const SupportPage: React.FC<SupportPageProps> = ({ page, onBack, onNavigate }) =
         );
       case 'terms':
         return (
-          <div className="max-w-4xl mx-auto animate-fade-in px-4">
-            <div className="text-center mb-16">
-              <h1 className="text-5xl md:text-7xl font-black text-brand-black mb-4 tracking-tighter uppercase">📜 TERMS <span className="text-[#dc6601]">& CONDITIONS</span></h1>
-              <p className="text-gray-500 font-bold uppercase text-[10px] tracking-[0.3em] border-y border-brand-primary/10 py-4 inline-block px-8">Last Updated: January 2026</p>
+          <div className="max-w-4xl mx-auto animate-fade-in px-1 sm:px-4">
+            <div className="text-center mb-8 sm:mb-12 md:mb-16">
+              <h1 className="text-2xl sm:text-4xl md:text-7xl font-black text-brand-black mb-3 sm:mb-4 tracking-tighter uppercase">📜 TERMS <span className="text-[#dc6601]">&amp; CONDITIONS</span></h1>
+              <p className="text-gray-500 font-bold uppercase text-[8px] sm:text-[10px] tracking-[0.2em] sm:tracking-[0.3em] border-y border-brand-primary/10 py-2 sm:py-4 inline-block px-4 sm:px-8">Last Updated: January 2026</p>
             </div>
 
-            <div className="bg-white p-8 md:p-14 rounded-[2.5rem] md:rounded-[4rem] shadow-premium border border-brand-primary/5 space-y-12">
+            <div className="bg-white p-4 sm:p-8 md:p-14 rounded-[1.5rem] sm:rounded-[2.5rem] md:rounded-[4rem] shadow-premium border border-brand-primary/5 space-y-6 sm:space-y-8 md:space-y-12">
               {[
                 { title: '1. Acceptance of Terms', icon: '✅', text: 'By visiting or using the SinggleBee website, you agree to these Terms & Conditions. If you do not agree, please stop using our services. Continued use means you accept any future updates.' },
                 { title: '2. Eligibility', icon: '👨👩👧', text: 'You must be of legal age in your location or have consent from a parent or guardian to use SinggleBee and make purchases.' },
@@ -152,27 +139,27 @@ const SupportPage: React.FC<SupportPageProps> = ({ page, onBack, onNavigate }) =
         );
       case 'help':
         return (
-          <div className="space-y-12">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <div className="w-20 h-20 bg-brand-primary rounded-3xl flex items-center justify-center text-4xl shadow-xl mx-auto mb-6 animate-buzz">🐝</div>
-              <h1 className="text-5xl font-black text-brand-black mb-4 tracking-tighter">How can we help the Hive?</h1>
-              <div className="relative mt-8">
-                <input type="text" placeholder="Search the reading knowledge base..." className="w-full pl-16 pr-8 py-6 rounded-[2rem] bg-white border-2 border-brand-primary/10 shadow-xl focus:border-brand-primary outline-none font-bold text-lg" />
-                <svg className="w-6 h-6 text-brand-primary absolute left-6 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          <div className="space-y-6 sm:space-y-8 md:space-y-12">
+            <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12 md:mb-16">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-brand-primary rounded-2xl sm:rounded-3xl flex items-center justify-center text-2xl sm:text-3xl md:text-4xl shadow-xl mx-auto mb-4 sm:mb-6 animate-buzz">🐝</div>
+              <h1 className="text-2xl sm:text-3xl md:text-5xl font-black text-brand-black mb-3 sm:mb-4 tracking-tighter">How can we help the Hive?</h1>
+              <div className="relative mt-4 sm:mt-6 md:mt-8">
+                <input type="text" placeholder="Search the knowledge base..." className="w-full pl-10 sm:pl-14 md:pl-16 pr-4 sm:pr-8 py-3.5 sm:py-5 md:py-6 rounded-xl sm:rounded-[1.5rem] md:rounded-[2rem] bg-white border-2 border-brand-primary/10 shadow-xl focus:border-brand-primary outline-none font-bold text-sm sm:text-base md:text-lg" />
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-brand-primary absolute left-3 sm:left-5 md:left-6 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-8">
               {[
                 { title: 'Track Order', icon: '📦', desc: 'Where is my book drop?' },
                 { title: 'Payments', icon: '🍯', desc: 'Manage your hive wallet.' },
                 { title: 'Safe Bee', icon: '🛡️', desc: 'Your security and privacy.' },
                 { title: 'E-Books', icon: '📱', desc: 'Digital hive collection.' }
               ].map((item, idx) => (
-                <div key={idx} className="bg-white p-8 rounded-[3rem] border-2 border-brand-primary/5 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all cursor-pointer group">
-                  <div className="text-4xl mb-4 group-hover:buzz transition-transform inline-block">{item.icon}</div>
-                  <h3 className="font-black text-xl text-brand-black mb-2">{item.title}</h3>
-                  <p className="text-gray-400 font-bold text-sm">{item.desc}</p>
+                <div key={idx} className="bg-white p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-[2rem] md:rounded-[3rem] border-2 border-brand-primary/5 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all cursor-pointer group">
+                  <div className="text-2xl sm:text-3xl md:text-4xl mb-2 sm:mb-3 md:mb-4 group-hover:buzz transition-transform inline-block">{item.icon}</div>
+                  <h3 className="font-black text-sm sm:text-base md:text-xl text-brand-black mb-1 sm:mb-2">{item.title}</h3>
+                  <p className="text-gray-400 font-bold text-[10px] sm:text-xs md:text-sm">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -180,17 +167,17 @@ const SupportPage: React.FC<SupportPageProps> = ({ page, onBack, onNavigate }) =
         );
       case 'returns':
         return (
-          <div className="max-w-4xl mx-auto space-y-16 animate-fade-in px-4">
+          <div className="max-w-4xl mx-auto space-y-8 sm:space-y-12 md:space-y-16 animate-fade-in px-1 sm:px-4">
             <div className="text-center">
-              <h1 className="text-5xl md:text-7xl font-black text-brand-black mb-4 tracking-tighter">Returns & <span className="text-[#dc6601]">Refunds</span></h1>
-              <p className="max-w-2xl mx-auto text-gray-500 font-bold leading-relaxed text-lg">
-                At SinggleBee 🐝, we carefully pack every book to make sure it reaches you safely and in perfect shape 📦✨. Still, we understand that problems can sometimes happen during delivery 🚚. To support you, we’ve created a simple and fair return and refund policy below to handle such situations smoothly 🤝😊.
+              <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-brand-black mb-3 sm:mb-4 tracking-tighter">Returns &amp; <span className="text-[#dc6601]">Refunds</span></h1>
+              <p className="max-w-2xl mx-auto text-gray-500 font-bold leading-relaxed text-sm sm:text-base md:text-lg">
+                At SinggleBee 🐝, we carefully pack every book to make sure it reaches you safely and in perfect shape 📦✨. Still, we understand that problems can sometimes happen during delivery 🚚. To support you, we've created a simple and fair return and refund policy below to handle such situations smoothly 🤝😊.
               </p>
             </div>
 
             <div className="space-y-10">
               {/* Returns Section */}
-              <div className="bg-white p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-premium border border-brand-primary/5">
+              <div className="bg-white p-4 sm:p-6 md:p-12 rounded-[1.5rem] sm:rounded-[2.5rem] md:rounded-[4rem] shadow-premium border border-brand-primary/5">
                 <h3 className="font-black text-2xl text-brand-black mb-10 flex items-center gap-4">
                   <span className="w-12 h-12 bg-brand-light rounded-2xl flex items-center justify-center text-2xl shadow-sm">🔄</span> RETURNS
                 </h3>
@@ -231,7 +218,7 @@ const SupportPage: React.FC<SupportPageProps> = ({ page, onBack, onNavigate }) =
               </div>
 
               {/* Refunds Section */}
-              <div className="bg-brand-black p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-premium text-white relative overflow-hidden">
+              <div className="bg-brand-black p-4 sm:p-6 md:p-12 rounded-[1.5rem] sm:rounded-[2.5rem] md:rounded-[4rem] shadow-premium text-white relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-brand-primary/10 honey-blob blur-[100px] opacity-20"></div>
                 <h3 className="font-black text-2xl text-brand-primary mb-10 flex items-center gap-4 relative z-10">
                   <span className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-2xl shadow-sm">💰</span> REFUNDS
@@ -265,7 +252,7 @@ const SupportPage: React.FC<SupportPageProps> = ({ page, onBack, onNavigate }) =
               </div>
 
               {/* Important Notes */}
-              <div className="bg-[#dc6601]/5 p-6 md:p-8 rounded-[2rem] border-2 border-dashed border-[#dc6601]/30">
+              <div className="bg-[#dc6601]/5 p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-[1.5rem] md:rounded-[2rem] border-2 border-dashed border-[#dc6601]/30">
                 <h3 className="font-black text-lg text-brand-black mb-6 flex items-center gap-3 uppercase tracking-tighter">
                   <span className="text-2xl">⚠</span> Important Notes
                 </h3>
@@ -289,15 +276,15 @@ const SupportPage: React.FC<SupportPageProps> = ({ page, onBack, onNavigate }) =
         );
       case 'shipping':
         return (
-          <div className="max-w-4xl mx-auto space-y-16 animate-fade-in px-4">
+          <div className="max-w-4xl mx-auto space-y-8 sm:space-y-12 md:space-y-16 animate-fade-in px-1 sm:px-4">
             <div className="text-center">
-              <h1 className="text-5xl md:text-7xl font-black text-brand-black mb-4 tracking-tighter uppercase">SHIPPING <span className="text-[#dc6601]">POLICY</span></h1>
-              <p className="text-gray-400 font-bold text-xs uppercase tracking-[0.34em]">Delivering Knowledge Everywhere 🚚</p>
+              <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-brand-black mb-3 sm:mb-4 tracking-tighter uppercase">SHIPPING <span className="text-[#dc6601]">POLICY</span></h1>
+              <p className="text-gray-400 font-bold text-[10px] sm:text-xs uppercase tracking-[0.2em] sm:tracking-[0.34em]">Delivering Knowledge Everywhere 🚚</p>
             </div>
 
             <div className="space-y-10">
               {/* Free Delivery Section */}
-              <div className="bg-white p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-premium border border-brand-primary/5 relative overflow-hidden group">
+              <div className="bg-white p-4 sm:p-6 md:p-12 rounded-[1.5rem] sm:rounded-[2.5rem] md:rounded-[4rem] shadow-premium border border-brand-primary/5 relative overflow-hidden group">
                 <div className="absolute -top-10 -right-10 w-48 h-48 bg-brand-primary/5 rounded-full blur-3xl transition-all group-hover:bg-brand-primary/10"></div>
                 <h3 className="font-black text-2xl text-brand-black mb-8 flex items-center gap-4">
                   <span className="w-12 h-12 bg-brand-light rounded-2xl flex items-center justify-center text-2xl shadow-sm">🎁</span> Free Delivery
@@ -315,7 +302,7 @@ const SupportPage: React.FC<SupportPageProps> = ({ page, onBack, onNavigate }) =
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                 {/* Order Dispatch Section */}
-                <div className="bg-brand-black p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] shadow-premium text-white relative overflow-hidden">
+                <div className="bg-brand-black p-4 sm:p-6 md:p-12 rounded-[1.5rem] sm:rounded-[2.5rem] md:rounded-[3.5rem] shadow-premium text-white relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/10 honey-blob blur-[100px] opacity-20"></div>
                   <h3 className="font-black text-2xl text-brand-primary mb-8 flex items-center gap-4 relative z-10">
                     <span className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-xl shadow-sm">📦</span> Order Dispatch
@@ -326,7 +313,7 @@ const SupportPage: React.FC<SupportPageProps> = ({ page, onBack, onNavigate }) =
                 </div>
 
                 {/* Delivery Window Section */}
-                <div className="bg-white p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] shadow-premium border border-brand-primary/5">
+                <div className="bg-white p-4 sm:p-6 md:p-12 rounded-[1.5rem] sm:rounded-[2.5rem] md:rounded-[3.5rem] shadow-premium border border-brand-primary/5">
                   <h3 className="font-black text-2xl text-brand-black mb-8 flex items-center gap-4">
                     <span className="w-10 h-10 bg-brand-light rounded-xl flex items-center justify-center text-xl shadow-sm">⏳</span> Delivery Window
                   </h3>
@@ -347,11 +334,11 @@ const SupportPage: React.FC<SupportPageProps> = ({ page, onBack, onNavigate }) =
         );
       case 'contact':
         return (
-          <div className="max-w-6xl mx-auto animate-fade-in px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start lg:items-center">
-              <div className="space-y-12">
+          <div className="max-w-6xl mx-auto animate-fade-in px-1 sm:px-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-20 items-start lg:items-center">
+              <div className="space-y-6 sm:space-y-8 md:space-y-12">
                 <div>
-                  <h1 className="text-6xl md:text-8xl font-black text-brand-black mb-8 tracking-tighter leading-none">Contact <br /><span className="text-[#dc6601]">Us</span></h1>
+                  <h1 className="text-3xl sm:text-5xl md:text-8xl font-black text-brand-black mb-4 sm:mb-6 md:mb-8 tracking-tighter leading-none">Contact <br /><span className="text-[#dc6601]">Us</span></h1>
                   <div className="text-gray-500 font-bold text-lg leading-relaxed max-w-sm space-y-4">
                     <p>We’re happy to help! 😊</p>
                     <p>If you have questions about your order, books, shipping, or returns, feel free to reach out to us anytime.</p>
@@ -403,7 +390,7 @@ const SupportPage: React.FC<SupportPageProps> = ({ page, onBack, onNavigate }) =
                 </div>
               </div>
 
-              <div className="bg-white p-8 md:p-14 rounded-[3.5rem] md:rounded-[5rem] shadow-premium border border-brand-primary/5 relative">
+              <div className="bg-white p-4 sm:p-6 md:p-14 rounded-[1.5rem] sm:rounded-[2.5rem] md:rounded-[5rem] shadow-premium border border-brand-primary/5 relative">
                 <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand-primary/5 rounded-full blur-3xl transition-all group-hover:bg-brand-primary/10"></div>
                 {submitted ? (
                   <div className="h-full flex flex-col items-center justify-center text-center py-20 animate-fade-in">
@@ -473,8 +460,8 @@ const SupportPage: React.FC<SupportPageProps> = ({ page, onBack, onNavigate }) =
   };
 
   return (
-    <div className="animate-fade-in pb-20 pt-10">
-      <button onClick={onBack} className="mb-12 flex items-center gap-3 text-sm font-black text-gray-400 hover:text-brand-primary transition-all group">
+    <div className="animate-fade-in pb-12 sm:pb-16 md:pb-20 pt-4 sm:pt-6 md:pt-10">
+      <button onClick={onBack} className="mb-6 sm:mb-8 md:mb-12 flex items-center gap-2 sm:gap-3 text-xs sm:text-sm font-black text-gray-400 hover:text-brand-primary transition-all group">
         <span className="w-10 h-10 rounded-2xl bg-white shadow-sm flex items-center justify-center group-hover:buzz">←</span>
         Back
       </button>

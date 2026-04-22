@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { SupportPageType } from './SupportPage';
 
+import { formspreeService } from '../services/formspree';
+
 interface FooterProps {
   onNavigateShop: () => void;
   onNavigateSupport: (page: SupportPageType) => void;
@@ -20,29 +22,13 @@ const Footer: React.FC<FooterProps> = ({ onNavigateShop, onNavigateSupport, onNa
 
     setIsSubmitting(true);
     try {
-      const response = await fetch("https://formspree.io/f/mlggdqro", {
-        method: "POST",
-        body: JSON.stringify({
-          email: email,
-          _subject: `🍯 New Hive Newsletter Subscriber: ${email}`,
-          source: "Footer Newsletter Form"
-        }),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        setJoined(true);
-        setEmail('');
-        setTimeout(() => setJoined(false), 5000);
-      } else {
-        setJoined(true); // Fail gracefully for demo
-      }
+      await formspreeService.submitNewsletter({ email });
+      setJoined(true);
+      setEmail('');
+      setTimeout(() => setJoined(false), 5000);
     } catch (err) {
       console.error("Newsletter error:", err);
-      setJoined(true);
+      setJoined(true); // Fail gracefully for demo
     } finally {
       setIsSubmitting(false);
     }
@@ -88,58 +74,59 @@ const Footer: React.FC<FooterProps> = ({ onNavigateShop, onNavigateSupport, onNa
   };
 
   return (
-    <footer className="bg-brand-black text-white pt-6 md:pt-10 pb-6 rounded-t-[2rem] md:rounded-t-[4rem] mt-4 md:mt-8 relative overflow-hidden">
+    <footer className="bg-brand-black text-white pt-6 md:pt-10 pb-6 rounded-t-[1.5rem] sm:rounded-t-[2rem] md:rounded-t-[4rem] mt-4 md:mt-8 relative overflow-hidden">
       <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-brand-primary/5 honey-blob blur-[100px] -mr-20 -mt-20"></div>
 
-      <div className="container mx-auto px-6 md:px-16 relative z-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
-          <div className="space-y-6 text-center sm:text-left flex flex-col items-center sm:items-start">
+      <div className="container mx-auto px-4 sm:px-6 md:px-16 relative z-10">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 md:gap-10 mb-8 sm:mb-10">
+          {/* Brand */}
+          <div className="col-span-2 sm:col-span-2 lg:col-span-1 space-y-4 sm:space-y-6 text-center sm:text-left flex flex-col items-center sm:items-start">
             <div className="flex items-center gap-3">
-              <span className="text-2xl font-extrabold tracking-tight drop-shadow-[0_0_15px_rgba(220,102,1,0.6)]">SINGGLE<span className="text-[#dc6601]">BEE</span></span>
+              <span className="text-xl sm:text-2xl font-extrabold tracking-tight drop-shadow-[0_0_15px_rgba(220,102,1,0.6)]">SINGGLE<span className="text-[#dc6601]">BEE</span></span>
             </div>
-            <p className="text-gray-400 font-medium text-sm leading-relaxed max-w-xs mx-auto sm:mx-0">
+            <p className="text-gray-400 font-medium text-xs sm:text-sm leading-relaxed max-w-xs mx-auto sm:mx-0">
               Curating the best books and premium supplies for your family. Trusted by parents, loved by kids.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:contents gap-8">
-            {footerGroups.map((group, i) => (
-              <div key={i} className="text-center sm:text-left">
-                <h4 className="font-extrabold text-brand-primary text-[10px] sm:text-xs mb-4 uppercase tracking-[0.2em]">{group.title}</h4>
-                <ul className="space-y-2.5 text-gray-400 font-medium text-xs">
-                  {group.links.map((link, j) => (
-                    <li key={j}>
-                      <button onClick={link.action} className="hover:text-brand-primary transition-colors text-left">{link.label}</button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+          {/* Links Groups */}
+          {footerGroups.map((group, i) => (
+            <div key={i} className="text-center sm:text-left">
+              <h4 className="font-extrabold text-brand-primary text-[9px] sm:text-[10px] md:text-xs mb-3 sm:mb-4 uppercase tracking-[0.15em] sm:tracking-[0.2em]">{group.title}</h4>
+              <ul className="space-y-1.5 sm:space-y-2.5 text-gray-400 font-medium text-[10px] sm:text-xs">
+                {group.links.map((link, j) => (
+                  <li key={j}>
+                    <button onClick={link.action} className="hover:text-brand-primary transition-colors text-left">{link.label}</button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
 
-          <div className="text-center sm:text-left">
-            <h4 className="font-extrabold text-brand-primary text-[10px] sm:text-xs mb-4 uppercase tracking-[0.2em]">Join Us</h4>
+          {/* Newsletter & Social */}
+          <div className="col-span-2 sm:col-span-1 text-center sm:text-left">
+            <h4 className="font-extrabold text-brand-primary text-[9px] sm:text-[10px] md:text-xs mb-3 sm:mb-4 uppercase tracking-[0.15em] sm:tracking-[0.2em]">Join Us</h4>
             {joined ? (
-              <div className="bg-brand-primary/10 border border-brand-primary/20 p-4 rounded-xl animate-fade-in text-brand-primary font-black text-xs uppercase tracking-widest mx-auto sm:mx-0 max-w-[280px] sm:max-w-none">
+              <div className="bg-brand-primary/10 border border-brand-primary/20 p-3 sm:p-4 rounded-xl animate-fade-in text-brand-primary font-black text-[10px] sm:text-xs uppercase tracking-widest mx-auto sm:mx-0 max-w-[280px] sm:max-w-none">
                 Welcome to the Hive! 🍯
               </div>
             ) : (
               <div className="max-w-[320px] sm:max-w-none mx-auto sm:mx-0">
-                <p className="text-gray-400 font-medium text-xs mb-4">Weekly honey drops and family deals directly to your hive.</p>
-                <form className="relative group mb-4" onSubmit={handleJoin}>
+                <p className="text-gray-400 font-medium text-[10px] sm:text-xs mb-3 sm:mb-4">Weekly honey drops and family deals directly to your hive.</p>
+                <form className="relative group mb-3 sm:mb-4" onSubmit={handleJoin}>
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="e-mail address"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-xs font-bold focus:bg-white/10 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none transition-all placeholder:text-gray-600"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg sm:rounded-xl px-3 sm:px-5 py-2.5 sm:py-3 text-[11px] sm:text-xs font-bold focus:bg-white/10 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none transition-all placeholder:text-gray-600"
                     disabled={isSubmitting}
                   />
                   <button
                     type="submit"
                     disabled={isSubmitting || !email}
-                    className="absolute right-1.5 top-1.5 bottom-1.5 bg-brand-primary text-brand-black text-[9px] sm:text-[10px] font-black px-4 rounded-lg hover:bg-brand-accent transition-all"
+                    className="absolute right-1 top-1 bottom-1 sm:right-1.5 sm:top-1.5 sm:bottom-1.5 bg-brand-primary text-brand-black text-[8px] sm:text-[10px] font-black px-3 sm:px-4 rounded-md sm:rounded-lg hover:bg-brand-accent transition-all"
                   >
                     {isSubmitting ? '...' : 'Join'}
                   </button>
@@ -148,17 +135,17 @@ const Footer: React.FC<FooterProps> = ({ onNavigateShop, onNavigateSupport, onNa
             )}
 
             {/* Social Icons */}
-            <div className="flex justify-center sm:justify-start gap-4 mt-6">
+            <div className="flex justify-center sm:justify-start gap-3 sm:gap-4 mt-4 sm:mt-6">
               {socialLinks.map((link, idx) => (
                 <a
                   key={idx}
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-brand-primary hover:text-brand-black transition-all hover:scale-110 hover:shadow-[0_0_15px_rgba(251,191,36,0.5)] group"
+                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-brand-primary hover:text-brand-black transition-all hover:scale-110 hover:shadow-[0_0_15px_rgba(251,191,36,0.5)] group"
                   aria-label={link.icon}
                 >
-                  <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <svg className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d={getIconPath(link.icon)} />
                   </svg>
                 </a>
@@ -167,8 +154,8 @@ const Footer: React.FC<FooterProps> = ({ onNavigateShop, onNavigateSupport, onNa
           </div>
         </div>
 
-        <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row items-center justify-center gap-6 pb-4 sm:pb-0">
-          <p className="text-gray-500 font-bold text-[9px] sm:text-[10px] uppercase tracking-[0.2em]">© 2026 SINGGLEBEE.</p>
+        <div className="pt-4 sm:pt-6 border-t border-white/5 flex flex-col md:flex-row items-center justify-center gap-4 sm:gap-6 pb-4 sm:pb-0">
+          <p className="text-gray-500 font-bold text-[8px] sm:text-[10px] uppercase tracking-[0.15em] sm:tracking-[0.2em]">© 2026 SINGGLEBEE.</p>
         </div>
       </div>
     </footer>

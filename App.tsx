@@ -13,8 +13,8 @@ import AuthModal from './components/AuthModal.tsx';
 import Assistant from './components/Assistant.tsx';
 import InteractiveParticles from './components/InteractiveParticles.tsx';
 import RoamingBee from './components/RoamingBee.tsx';
-import AutoScrollProductBand from './components/AutoScrollProductBand';
-import TestimonialMarquee from './components/TestimonialMarquee';
+import AutoScrollProductBand from './components/AutoScrollProductBand.tsx';
+import TestimonialMarquee from './components/TestimonialMarquee.tsx';
 import { MOCK_PRODUCTS } from './constants.ts';
 import { Category, Product, CartItem, User } from './types';
 import BeeCharacter from './components/BeeCharacter.tsx';
@@ -462,7 +462,7 @@ const App: React.FC = () => {
         onSignOutClick={handleSignOut}
       />
 
-      <main className="flex-grow w-full max-w-7xl mx-auto pt-48 px-6 relative z-10">
+      <main className="flex-grow w-full max-w-7xl mx-auto pt-28 sm:pt-36 md:pt-48 px-3 sm:px-4 md:px-6 relative z-10">
         {selectedProduct ? (
           <ProductDetails
             product={selectedProduct}
@@ -483,12 +483,12 @@ const App: React.FC = () => {
           />
         ) : showWishlist ? (
           <div className="animate-fade-in min-h-[60vh]">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-4xl font-black text-brand-black tracking-tighter">Your Honey Pot 🍯</h2>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-brand-black tracking-tighter">Your Honey Pot 🍯</h2>
               {wishlist.length > 0 && (
                 <button
                   onClick={moveWishlistToCart}
-                  className="bg-brand-primary text-brand-black px-6 py-3 rounded-2xl font-black shadow-honey hover:scale-105 active:scale-95 transition-all text-sm uppercase tracking-widest flex items-center gap-2"
+                  className="bg-brand-primary text-brand-black px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-black shadow-honey hover:scale-105 active:scale-95 transition-all text-xs sm:text-sm uppercase tracking-widest flex items-center gap-2 w-full sm:w-auto justify-center"
                 >
                   <span>🚀</span> Move All to Hive
                 </button>
@@ -496,7 +496,7 @@ const App: React.FC = () => {
             </div>
 
             {wishlist.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 lg:gap-10">
                 {products.filter(p => wishlist.includes(p.id)).map((p, idx) => (
                   <ProductCard
                     key={p.id}
@@ -511,15 +511,15 @@ const App: React.FC = () => {
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-24 text-center bg-white rounded-[4rem] shadow-honey border-4 border-dashed border-brand-primary/20">
-                <div className="text-8xl mb-6 animate-float flex justify-center">
-                  <BeeCharacter size="12rem" />
+              <div className="flex flex-col items-center justify-center py-12 sm:py-16 md:py-24 text-center bg-white rounded-2xl sm:rounded-[3rem] md:rounded-[4rem] shadow-honey border-2 sm:border-4 border-dashed border-brand-primary/20 px-4">
+                <div className="text-5xl sm:text-6xl md:text-8xl mb-4 sm:mb-6 animate-float flex justify-center">
+                  <BeeCharacter size="6rem" />
                 </div>
-                <h3 className="text-3xl font-black text-brand-black mb-4">Your Honey Pot is Empty!</h3>
-                <p className="text-gray-500 font-bold mb-8 max-w-md">Our busy bees haven't found any favorites yet. Buzz around the shop to find something sweet!</p>
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-brand-black mb-2 sm:mb-4">Your Honey Pot is Empty!</h3>
+                <p className="text-gray-500 font-bold mb-5 sm:mb-8 max-w-md text-sm sm:text-base">Our busy bees haven't found any favorites yet. Buzz around the shop to find something sweet!</p>
                 <button
                   onClick={() => goToShop(Category.ALL)}
-                  className="bg-brand-black text-brand-primary px-8 py-4 rounded-2xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3 text-lg"
+                  className="bg-brand-black text-brand-primary px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2 sm:gap-3 text-sm sm:text-lg"
                 >
                   <span>🍯</span> Go to Shop
                 </button>
@@ -577,10 +577,10 @@ const App: React.FC = () => {
           <div className="pb-24">
 
             {/* Category Pills & Sort Controls - Single Row */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-6 sm:mb-8 md:mb-10">
               {/* Category Pills */}
-              <div className="overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
-                <div className="flex gap-2.5 sm:gap-3 w-max sm:w-auto">
+              <div className="overflow-x-auto no-scrollbar -mx-3 px-3 sm:mx-0 sm:px-0">
+                <div className="flex gap-1.5 sm:gap-2.5 md:gap-3 w-max sm:w-auto">
                   {[Category.ALL, Category.BOOKS, Category.FOOD, Category.STATIONERY].map((cat) => {
                     // For the "All" button, only show active state when All Products section is in view
                     const isAllButtonActive = cat === Category.ALL
@@ -594,14 +594,14 @@ const App: React.FC = () => {
                           setSelectedCategory(cat);
                           morphScrollToGrid();
                         }}
-                        className={`group relative px-5 sm:px-7 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-black transition-all duration-300 overflow-hidden shadow-sm
+                        className={`group relative px-3.5 sm:px-5 md:px-7 py-2 sm:py-2.5 md:py-3.5 rounded-lg sm:rounded-xl md:rounded-2xl text-[10px] sm:text-[11px] md:text-xs font-black transition-all duration-300 overflow-hidden shadow-sm
                         ${isAllButtonActive
                             ? 'bg-zinc-900 text-white shadow-honey scale-105'
                             : 'bg-white/70 backdrop-blur-md text-gray-500 border border-white/50 hover:bg-white hover:text-brand-black hover:border-brand-primary hover:shadow-md'
                           }`}
                       >
-                        <div className="flex items-center gap-2 sm:gap-2.5 relative z-10 transition-transform group-hover:scale-105">
-                          <span className={`text-base sm:text-lg ${isAllButtonActive ? 'scale-110' : 'grayscale group-hover:grayscale-0'} transition-all duration-300`}>
+                        <div className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5 relative z-10 transition-transform group-hover:scale-105">
+                          <span className={`text-sm sm:text-base md:text-lg ${isAllButtonActive ? 'scale-110' : 'grayscale group-hover:grayscale-0'} transition-all duration-300`}>
                             {cat === Category.ALL ? '🏠' : cat === Category.BOOKS ? '📚' : cat === Category.FOOD ? '🍯' : '✏️'}
                           </span>
                           <span className="tracking-widest uppercase">{cat === Category.ALL ? 'All' : cat}</span>
@@ -703,7 +703,7 @@ const App: React.FC = () => {
                       </div>
                       <button onClick={() => setSortBy('newest')} className="text-brand-primary font-bold text-sm hover:underline">View All</button>
                     </div>
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
                       {products
                         .filter(p => !p.isComingSoon && !p.isOutOfStock) // Only available products in New Arrivals
                         .slice()
@@ -766,7 +766,7 @@ const App: React.FC = () => {
               )}
 
               {/* Main Product Grid */}
-              <div ref={allProductsRef} className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 min-h-[400px] sm:min-h-[500px] scroll-mt-48">
+              <div ref={allProductsRef} className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 md:gap-4 lg:gap-6 min-h-[300px] sm:min-h-[400px] md:min-h-[500px] scroll-mt-32 sm:scroll-mt-40 md:scroll-mt-48">
                 {isLoading || isFiltering ? (
                   [...Array(6)].map((_, i) => <ProductSkeleton key={`skeleton-${i}`} />)
                 ) : isExiting ? (
@@ -798,12 +798,12 @@ const App: React.FC = () => {
                       />
                     ))
                   ) : (
-                    <div className="col-span-full py-32 text-center animate-fade-in bg-white rounded-[4rem] shadow-honey border-4 border-dashed border-brand-primary/20">
-                      <div className="text-6xl mb-6 animate-buzz inline-flex justify-center">
-                        <BeeCharacter size="8rem" />
+                    <div className="col-span-full py-16 sm:py-24 md:py-32 text-center animate-fade-in bg-white rounded-2xl sm:rounded-[3rem] md:rounded-[4rem] shadow-honey border-2 sm:border-4 border-dashed border-brand-primary/20 px-4">
+                      <div className="text-4xl sm:text-5xl md:text-6xl mb-4 sm:mb-6 animate-buzz inline-flex justify-center">
+                        <BeeCharacter size="5rem" />
                       </div>
-                      <h3 className="text-3xl font-black text-brand-black mb-3">Oh Honey, it's empty!</h3>
-                      <p className="text-gray-500 font-bold">Try searching for something else in the hive.</p>
+                      <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-brand-black mb-2 sm:mb-3">Oh Honey, it's empty!</h3>
+                      <p className="text-gray-500 font-bold text-sm sm:text-base">Try searching for something else in the hive.</p>
                     </div>
                   )
                 )}

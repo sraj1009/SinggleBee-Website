@@ -3,6 +3,8 @@ import { Product, Review } from '../types';
 import BeeCharacter from './BeeCharacter.tsx';
 import ProductCard from './ProductCard';
 
+import { formspreeService } from '../services/formspree';
+
 interface ProductDetailsProps {
   product: Product;
   allProducts: Product[];
@@ -49,19 +51,9 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
 
     setIsReviewSubmitting(true);
     try {
-      await fetch("https://formspree.io/f/mlggdqro", {
-        method: "POST",
-        body: JSON.stringify({
-          name: reviewForm.name,
-          rating: reviewForm.rating,
-          comment: reviewForm.comment,
-          product_title: product.title,
-          _subject: `🐝 New Hive Review for ${product.title}`
-        }),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
+      await formspreeService.submitReview({
+        ...reviewForm,
+        product_title: product.title
       });
 
       const newReview: Review = {
@@ -91,12 +83,12 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
   };
 
   return (
-    <div className="animate-fade-in pb-20 pt-6 max-w-[1400px] mx-auto px-4 md:px-8">
+    <div className="animate-fade-in pb-12 sm:pb-16 md:pb-20 pt-4 sm:pt-6 max-w-[1400px] mx-auto px-3 sm:px-4 md:px-8">
       {/* Navigation & Breadcrumbs */}
-      <div className="mb-8 flex items-center justify-between animate-slide-down relative z-20">
+      <div className="mb-4 sm:mb-6 md:mb-8 flex items-center justify-between animate-slide-down relative z-20">
         <button
           onClick={onBack}
-          className="flex items-center gap-2.5 px-5 py-2.5 bg-white text-brand-black text-[10px] font-black uppercase tracking-[0.18em] rounded-xl shadow-sm border border-brand-light/40 hover:bg-brand-black hover:text-brand-primary transition-all group"
+          className="flex items-center gap-1.5 sm:gap-2.5 px-3 sm:px-5 py-2 sm:py-2.5 bg-white text-brand-black text-[9px] sm:text-[10px] font-black uppercase tracking-[0.12em] sm:tracking-[0.18em] rounded-lg sm:rounded-xl shadow-sm border border-brand-light/40 hover:bg-brand-black hover:text-brand-primary transition-all group"
         >
           <span className="group-hover:-translate-x-1.2 transition-transform duration-300">←</span>
           <span>Back to Hive</span>
@@ -110,17 +102,17 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
       </div>
 
       {/* Main Showcase Grid */}
-      <div className="bg-white rounded-[2.5rem] lg:rounded-[3.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-gray-100/50 overflow-hidden mb-16 relative">
+      <div className="bg-white rounded-[1.5rem] sm:rounded-[2rem] lg:rounded-[3.5rem] shadow-[0_15px_30px_rgba(0,0,0,0.04)] sm:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-gray-100/50 overflow-hidden mb-8 sm:mb-12 md:mb-16 relative">
         <div className="grid grid-cols-1 lg:grid-cols-2">
 
           {/* Left Column: Focused Image Showcase */}
-          <div className="p-8 lg:p-14 bg-gradient-to-br from-amber-50/40 via-white to-orange-50/20 flex items-center justify-center relative min-h-[400px] lg:min-h-[600px] border-b lg:border-b-0 lg:border-r border-gray-100/30 overflow-hidden group/showcase">
+          <div className="p-4 sm:p-6 md:p-8 lg:p-14 bg-gradient-to-br from-amber-50/40 via-white to-orange-50/20 flex items-center justify-center relative min-h-[280px] sm:min-h-[350px] lg:min-h-[600px] border-b lg:border-b-0 lg:border-r border-gray-100/30 overflow-hidden group/showcase">
             <div className="absolute inset-0 honeycomb-pattern opacity-[0.02] pointer-events-none"></div>
 
             {/* Status Floating Badge */}
             {/* Status Floating Badge */}
             {(product.bestseller || product.isOutOfStock || product.isComingSoon) && (
-              <div className="absolute top-8 left-8 z-20">
+              <div className="absolute top-3 left-3 sm:top-6 sm:left-6 md:top-8 md:left-8 z-20">
                 {product.isOutOfStock ? (
                   <span className="bg-zinc-800 text-white text-[9px] font-black px-4 py-2 rounded-full shadow-lg flex items-center gap-2 uppercase tracking-widest border border-white/10">
                     <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
@@ -152,10 +144,10 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
           </div>
 
           {/* Right Column: Clean Product Details */}
-          <div className="p-8 lg:p-14 flex flex-col justify-center bg-white">
+          <div className="p-4 sm:p-6 md:p-8 lg:p-14 flex flex-col justify-center bg-white">
             <div className="max-w-lg w-full">
               {/* Product Header */}
-              <div className="flex justify-between items-start gap-6 mb-8">
+              <div className="flex justify-between items-start gap-3 sm:gap-6 mb-4 sm:mb-6 md:mb-8">
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="flex bg-amber-50/80 px-2.5 py-1 rounded-lg items-center gap-1.5 border border-amber-100/30">
@@ -166,7 +158,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
                       {product.reviewCount + reviews.length} Buzzes
                     </span>
                   </div>
-                  <h1 className="text-3xl lg:text-4xl font-black text-brand-black leading-tight tracking-tight">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-brand-black leading-tight tracking-tight">
                     {product.title}
                   </h1>
                   <p className="text-gray-400 font-bold text-base flex items-center gap-2">
@@ -177,7 +169,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
                 {/* Compact Wishlist */}
                 <button
                   onClick={onToggleWishlist}
-                  className={`group/wish p-4 rounded-2xl shadow-sm transition-all duration-300 active:scale-95 flex-shrink-0 border 
+                  className={`group/wish p-2.5 sm:p-3 md:p-4 rounded-xl sm:rounded-2xl shadow-sm transition-all duration-300 active:scale-95 flex-shrink-0 border 
                     ${isWishlisted
                       ? 'bg-rose-500 text-white border-rose-400'
                       : 'bg-white text-gray-400 border-gray-100 hover:text-rose-500 hover:border-rose-100'}`}
@@ -194,13 +186,13 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
               </div>
 
               {/* Price & Status */}
-              <div className="mb-8 pb-8 border-b border-gray-100/60 flex flex-wrap items-end justify-between gap-6">
+              <div className="mb-4 sm:mb-6 md:mb-8 pb-4 sm:pb-6 md:pb-8 border-b border-gray-100/60 flex flex-wrap items-end justify-between gap-3 sm:gap-6">
                 <div>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl lg:text-5xl font-black text-brand-black tracking-tight">
+                    <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-brand-black tracking-tight">
                       ₹{product.price.toLocaleString('en-IN')}
                     </span>
-                    <span className="text-gray-300 font-black text-base">.00</span>
+                    <span className="text-gray-300 font-black text-sm sm:text-base">.00</span>
                   </div>
                   <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest mt-2 flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-brand-meadow" />
@@ -217,7 +209,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
               </div>
 
               {/* Precise Description */}
-              <div className="mb-10">
+              <div className="mb-6 sm:mb-8 md:mb-10">
                 <h3 className="font-black text-[10px] text-gray-400 uppercase tracking-[0.15em] mb-3">Product Story</h3>
                 <p className="text-gray-500 font-medium leading-relaxed text-sm">
                   {product.description}
@@ -316,7 +308,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 md:gap-16 items-start">
         <div className="lg:col-span-5 lg:sticky lg:top-36">
           <div className="relative group/form">
             <div className="absolute -inset-4 bg-brand-primary/5 rounded-[2.5rem] blur-2xl opacity-0 group-hover/form:opacity-100 transition-opacity duration-1000"></div>
@@ -327,7 +319,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
                 <span className="text-[10px] font-black text-brand-secondary uppercase tracking-[0.2em]">Collective Wisdom</span>
               </div>
 
-              <h2 className="text-4xl font-black text-brand-black mb-4 tracking-tighter">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-brand-black mb-3 sm:mb-4 tracking-tighter">
                 Share your <span className="text-brand-primary">Buzz</span>
               </h2>
 
@@ -350,13 +342,13 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
 
                 <div className="space-y-4">
                   <label className="text-[10px] font-black text-brand-black uppercase tracking-widest ml-1">Rating</label>
-                  <div className="flex gap-2 p-3 bg-gradient-to-r from-amber-50/50 to-orange-50/30 rounded-2xl border border-amber-100/30">
+                  <div className="flex gap-1.5 sm:gap-2 p-2 sm:p-3 bg-gradient-to-r from-amber-50/50 to-orange-50/30 rounded-xl sm:rounded-2xl border border-amber-100/30 flex-wrap">
                     {[1, 2, 3, 4, 5].map(star => (
                       <button
                         key={star}
                         type="button"
                         onClick={() => setReviewForm({ ...reviewForm, rating: star })}
-                        className={`group/star relative w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 font-black text-2xl overflow-hidden
+                        className={`group/star relative w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center transition-all duration-300 font-black text-lg sm:text-xl md:text-2xl overflow-hidden
                         ${reviewForm.rating >= star
                             ? 'bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-[0_8px_24px_rgba(251,191,36,0.4)] scale-105 -rotate-3'
                             : 'bg-white text-gray-300 hover:text-amber-400 hover:bg-amber-50 hover:scale-110 border border-gray-100 shadow-sm'}`}
@@ -416,8 +408,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
         </div>
 
         <div className="lg:col-span-7">
-          <div className="bg-brand-light/10 rounded-[3rem] p-10 lg:p-14 border border-brand-light/30">
-            <div className="flex items-center justify-between mb-12">
+          <div className="bg-brand-light/10 rounded-[1.5rem] sm:rounded-[2rem] md:rounded-[3rem] p-4 sm:p-6 md:p-10 lg:p-14 border border-brand-light/30">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 md:mb-12 gap-4">
               <div>
                 <h3 className="text-2xl font-black text-brand-black tracking-tight mb-1">Hive Feedback</h3>
                 <div className="flex items-center gap-2">
@@ -471,7 +463,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
       </div>
 
       {/* Suggested Products - Neat Grid */}
-      <div className="mt-20 pt-16 border-t border-brand-light/40">
+      <div className="mt-10 sm:mt-14 md:mt-20 pt-8 sm:pt-12 md:pt-16 border-t border-brand-light/40">
         <div className="flex items-center justify-between mb-10">
           <div>
             <h3 className="text-2xl font-black text-brand-black tracking-tight mb-1">Related for your Hive</h3>
@@ -482,7 +474,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
           {relatedProducts.map(p => (
             <ProductCard
               key={p.id}

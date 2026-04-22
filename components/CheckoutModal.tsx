@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { CartItem, User } from '../types';
 import BeeCharacter from './BeeCharacter.tsx';
+import { formspreeService } from '../services/formspree';
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -180,33 +181,11 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, subtotal
       // NOTE: screenshots are validated but NOT sent to Formspree as per request
       // This avoids "File Uploads Not Permitted" errors while keeping the UX mandatory.
 
-      const response = await fetch("https://formspree.io/f/mqeearzy", {
-        method: "POST",
-        body: data,
-        headers: { 'Accept': 'application/json' }
-      });
-
-      if (response.ok) {
-        setStep('success');
-        onSuccess();
-        setTimeout(() => { onClose(); }, 8000);
-      } else {
-        let errorMsg = 'Formspree submission failed';
-        try {
-          const errorData = await response.json();
-          console.error("Formspree Error Details:", errorData); // Debug log
-
-          if (errorData.errors) {
-            errorMsg = errorData.errors.map((err: any) => err.message).join(', ');
-          } else if (errorData.error) {
-            errorMsg = errorData.error;
-          }
-        } catch (parseErr) {
-          console.error("Formspree Non-JSON Error:", parseErr);
-        }
-
-        throw new Error(errorMsg);
-      }
+      await formspreeService.submitOrder(data);
+      
+      setStep('success');
+      onSuccess();
+      setTimeout(() => { onClose(); }, 8000);
     } catch (err: any) {
       setSubmissionError(err.message || 'The hive connection was interrupted. Please try again.');
       setStep('details');
@@ -227,25 +206,25 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, subtotal
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-brand-black/70 backdrop-blur-xl z-[100] flex items-center justify-center p-2 md:p-6 animate-fade-in overflow-hidden">
-      <div className="bg-white rounded-[2.5rem] md:rounded-[4rem] shadow-2xl w-full max-w-6xl overflow-hidden flex flex-col max-h-[96vh] animate-slide-up border-[6px] border-brand-accent relative">
+    <div className="fixed inset-0 bg-brand-black/70 backdrop-blur-xl z-[100] flex items-end sm:items-center justify-center p-0 sm:p-2 md:p-6 animate-fade-in overflow-hidden">
+      <div className="bg-white rounded-t-[1.5rem] sm:rounded-[2rem] md:rounded-[4rem] shadow-2xl w-full max-w-6xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[96vh] animate-slide-up border-t-4 sm:border-[4px] md:border-[6px] border-brand-accent relative">
 
         {/* Header Section */}
-        <div className="bg-white px-8 md:px-14 py-6 border-b border-brand-light flex items-center justify-between gap-4 z-10 shrink-0">
-          <div className="flex items-center gap-5">
-            <div className="w-14 h-14 bg-brand-primary rounded-[1.5rem] flex items-center justify-center text-3xl shadow-honey group relative overflow-hidden">
+        <div className="bg-white px-4 sm:px-6 md:px-14 py-3 sm:py-4 md:py-6 border-b border-brand-light flex items-center justify-between gap-2 sm:gap-4 z-10 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-5 min-w-0">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 md:w-14 md:h-14 bg-brand-primary rounded-xl sm:rounded-[1.25rem] md:rounded-[1.5rem] flex items-center justify-center text-xl sm:text-2xl md:text-3xl shadow-honey group relative overflow-hidden flex-shrink-0">
               <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent pointer-events-none"></div>
               <span className="group-hover:buzz relative z-10 flex items-center justify-center">
-                <BeeCharacter size="2rem" />
+                <BeeCharacter size="1.5rem" />
               </span>
             </div>
-            <div>
-              <h3 className="text-2xl md:text-4xl font-black text-brand-black tracking-tighter leading-none">Finalize Order</h3>
-              <p className="text-[10px] font-black text-brand-secondary uppercase tracking-[0.35em] mt-1.5 opacity-60">Nectar Collection Sequence</p>
+            <div className="min-w-0">
+              <h3 className="text-lg sm:text-2xl md:text-4xl font-black text-brand-black tracking-tighter leading-none truncate">Finalize Order</h3>
+              <p className="text-[8px] sm:text-[9px] md:text-[10px] font-black text-brand-secondary uppercase tracking-[0.2em] sm:tracking-[0.35em] mt-0.5 sm:mt-1.5 opacity-60">Nectar Collection Sequence</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2 sm:gap-4 md:gap-6 flex-shrink-0">
             <div className="hidden lg:flex flex-col items-end">
               <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Hive Progress</span>
               <div className="flex gap-1.5">
@@ -253,7 +232,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, subtotal
                 <div className={`w-10 h-2 rounded-full transition-all duration-700 ${step === 'processing' ? 'bg-brand-primary shadow-lg' : step === 'success' ? 'bg-brand-meadow' : 'bg-brand-light'}`}></div>
               </div>
             </div>
-            <button onClick={onClose} className="w-12 h-12 rounded-2xl bg-brand-light flex items-center justify-center text-brand-black hover:bg-brand-rose hover:text-white transition-all active:scale-90 font-black shadow-sm">✕</button>
+            <button onClick={onClose} className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl sm:rounded-2xl bg-brand-light flex items-center justify-center text-brand-black hover:bg-brand-rose hover:text-white transition-all active:scale-90 font-black shadow-sm text-sm">✕</button>
           </div>
         </div>
 
@@ -262,7 +241,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, subtotal
             <form onSubmit={handleSubmit} className="flex flex-col lg:flex-row h-full">
 
               {/* Left Column: Summary & Payment */}
-              <div className="w-full lg:w-[40%] bg-brand-light/40 border-r border-brand-light p-6 md:p-12 space-y-8 md:space-y-10">
+              <div className="w-full lg:w-[40%] bg-brand-light/40 border-b lg:border-b-0 lg:border-r border-brand-light p-4 sm:p-6 md:p-12 space-y-5 sm:space-y-8 md:space-y-10">
                 {submissionError && (
                   <div className="bg-rose-50 border-2 border-brand-rose/10 p-5 rounded-3xl animate-buzz shadow-sm">
                     <p className="text-brand-rose font-black text-xs text-center leading-relaxed">🚨 BUZZ ERROR: {submissionError}</p>
@@ -270,22 +249,22 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, subtotal
                 )}
 
                 {/* Total Card */}
-                <div className="bg-white p-10 rounded-[3rem] shadow-honey border-4 border-white relative overflow-hidden group">
+                <div className="bg-white p-5 sm:p-7 md:p-10 rounded-2xl sm:rounded-[2rem] md:rounded-[3rem] shadow-honey border-2 sm:border-4 border-white relative overflow-hidden group">
                   <div className="absolute top-0 right-0 w-40 h-40 bg-brand-primary/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
-                  <span className="text-brand-secondary/40 font-black text-[11px] uppercase tracking-[0.4em] block mb-5 text-center">Hive Dues</span>
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-brand-primary text-3xl font-black">₹</span>
-                    <span className="text-7xl font-black text-brand-black tracking-tighter">{total.toLocaleString('en-IN')}</span>
+                  <span className="text-brand-secondary/40 font-black text-[10px] sm:text-[11px] uppercase tracking-[0.3em] sm:tracking-[0.4em] block mb-3 sm:mb-5 text-center">Hive Dues</span>
+                  <div className="flex items-center justify-center gap-1 sm:gap-2">
+                    <span className="text-brand-primary text-xl sm:text-2xl md:text-3xl font-black">₹</span>
+                    <span className="text-4xl sm:text-5xl md:text-7xl font-black text-brand-black tracking-tighter">{total.toLocaleString('en-IN')}</span>
                   </div>
 
-                  <div className="mt-10 pt-10 border-t-2 border-brand-light grid grid-cols-2 gap-6">
+                  <div className="mt-5 sm:mt-8 md:mt-10 pt-5 sm:pt-8 md:pt-10 border-t-2 border-brand-light grid grid-cols-2 gap-3 sm:gap-6">
                     <div>
-                      <span className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Subtotal</span>
-                      <span className="text-lg font-black text-brand-black">₹{subtotal.toLocaleString('en-IN')}</span>
+                      <span className="block text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Subtotal</span>
+                      <span className="text-sm sm:text-base md:text-lg font-black text-brand-black">₹{subtotal.toLocaleString('en-IN')}</span>
                     </div>
                     <div className="text-right">
-                      <span className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Delivery</span>
-                      <span className={`text-lg font-black ${shippingFee === 0 ? 'text-brand-meadow' : 'text-brand-black'}`}>
+                      <span className="block text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Delivery</span>
+                      <span className={`text-sm sm:text-base md:text-lg font-black ${shippingFee === 0 ? 'text-brand-meadow' : 'text-brand-black'}`}>
                         {shippingFee === 0 ? 'FREE' : `₹${shippingFee.toLocaleString('en-IN')}`}
                       </span>
                     </div>
@@ -293,7 +272,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, subtotal
                 </div>
 
                 {/* UPI Payment Card */}
-                <div className="bg-brand-dark p-10 rounded-[3rem] shadow-2xl relative overflow-hidden group text-white">
+                <div className="bg-brand-dark p-5 sm:p-7 md:p-10 rounded-2xl sm:rounded-[2rem] md:rounded-[3rem] shadow-2xl relative overflow-hidden group text-white">
                   <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none"></div>
                   <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/20 rounded-full blur-[60px] -mr-16 -mt-16"></div>
 
@@ -301,19 +280,19 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, subtotal
                     <span className="animate-buzz inline-block">🍯</span> Payment To:
                   </h4>
 
-                  <div onClick={copyUpiId} className="bg-white/10 border-2 border-white/10 rounded-3xl p-6 cursor-pointer hover:bg-white/20 transition-all group/upi shadow-inner">
-                    <div className="flex items-center gap-4 mb-5">
-                      <div className="w-14 h-14 bg-brand-primary rounded-2xl flex items-center justify-center text-3xl shadow-lg border-2 border-white/20 group-hover/upi:buzz transition-transform">
-                        <BeeCharacter size="2.5rem" />
+                  <div onClick={copyUpiId} className="bg-white/10 border-2 border-white/10 rounded-xl sm:rounded-2xl md:rounded-3xl p-3 sm:p-4 md:p-6 cursor-pointer hover:bg-white/20 transition-all group/upi shadow-inner">
+                    <div className="flex items-center gap-2 sm:gap-3 md:gap-4 mb-3 sm:mb-5">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-brand-primary rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl md:text-3xl shadow-lg border-2 border-white/20 group-hover/upi:buzz transition-transform flex-shrink-0">
+                        <BeeCharacter size="2rem" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <span className="block text-[9px] font-black text-brand-primary uppercase tracking-widest mb-1 opacity-70">Honey ID</span>
-                        <p className="text-base md:text-lg font-black text-white/90 truncate tracking-tight">
+                        <span className="block text-[8px] sm:text-[9px] font-black text-brand-primary uppercase tracking-widest mb-0.5 sm:mb-1 opacity-70">Honey ID</span>
+                        <p className="text-[11px] sm:text-sm md:text-lg font-black text-white/90 truncate tracking-tight">
                           singglebee.rsventures@okhdfcbank
                         </p>
                       </div>
                     </div>
-                    <div className={`w-full py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] text-center transition-all ${copied ? 'bg-brand-meadow text-white' : 'bg-brand-primary text-brand-black shadow-lg hover:scale-105'}`}>
+                    <div className={`w-full py-2.5 sm:py-3 md:py-4 rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] md:text-[11px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-center transition-all ${copied ? 'bg-brand-meadow text-white' : 'bg-brand-primary text-brand-black shadow-lg hover:scale-105'}`}>
                       {copied ? '✨ ID Copied! ✨' : 'Click to Copy ID'}
                     </div>
                   </div>
@@ -337,7 +316,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, subtotal
               </div>
 
               {/* Right Column: Details & Upload */}
-              <div className="w-full lg:w-[60%] p-6 md:p-14 space-y-10 md:space-y-12 bg-white">
+              <div className="w-full lg:w-[60%] p-4 sm:p-6 md:p-14 space-y-6 sm:space-y-8 md:space-y-12 bg-white">
 
                 {/* Personal Section */}
                 <div className="space-y-8 animate-fade-in">
@@ -453,14 +432,14 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, subtotal
                 </div>
 
                 <div className="pt-6">
-                  <button type="submit" className="group relative w-full bg-brand-black text-brand-primary font-black py-8 rounded-[2.5rem] shadow-xl hover:scale-[1.03] active:scale-95 transition-all text-2xl md:text-3xl flex items-center justify-center gap-6 overflow-hidden">
+                  <button type="submit" className="group relative w-full bg-brand-black text-brand-primary font-black py-4 sm:py-6 md:py-8 rounded-xl sm:rounded-2xl md:rounded-[2.5rem] shadow-xl hover:scale-[1.03] active:scale-95 transition-all text-base sm:text-xl md:text-3xl flex items-center justify-center gap-3 sm:gap-4 md:gap-6 overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-shimmer pointer-events-none"></div>
                     <span className="group-hover:animate-buzz flex items-center justify-center">
-                      <BeeCharacter size="3.5rem" />
+                      <BeeCharacter size="2rem" />
                     </span>
                     <div className="flex flex-col items-start">
-                      <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-40 leading-none mb-1.5">Nectar Sequence Finalized</span>
-                      <span className="leading-none">Confirm Hive Order</span>
+                      <span className="text-[7px] sm:text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] sm:tracking-[0.5em] opacity-40 leading-none mb-1">Nectar Sequence Finalized</span>
+                      <span className="leading-none text-sm sm:text-lg md:text-2xl">Confirm Hive Order</span>
                     </div>
                   </button>
                 </div>
@@ -490,7 +469,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, subtotal
                 <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent"></div>
                 <svg className="w-28 h-28 text-white relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={5} d="M5 13l4 4L19 7" /></svg>
               </div>
-              <h3 className="text-6xl md:text-8xl font-black text-brand-black mb-8 tracking-tighter">Bzz-tastic!</h3>
+              <h3 className="text-3xl sm:text-5xl md:text-8xl font-black text-brand-black mb-4 sm:mb-6 md:mb-8 tracking-tighter">Bzz-tastic!</h3>
               <div className="max-w-2xl px-6 space-y-8">
                 <p className="text-gray-500 font-bold text-2xl md:text-4xl leading-relaxed">Your Order has been Received! 🍯</p>
                 <div className="bg-brand-light p-10 rounded-[3.5rem] border-4 border-white shadow-inner">
