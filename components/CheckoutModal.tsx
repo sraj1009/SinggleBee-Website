@@ -332,6 +332,12 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, subtotal
                       </FormInputContainer>
                     </div>
                     <div className="space-y-1">
+                      <InputLabel required icon="✉️">Email Address</InputLabel>
+                      <FormInputContainer focused={focusedField === 'email'}>
+                        <input required type="email" value={formData.email} onFocus={() => setFocusedField('email')} onBlur={() => setFocusedField(null)} onChange={e => setFormData({ ...formData, email: e.target.value })} className="w-full bg-transparent px-6 py-4.5 text-base font-black text-brand-black outline-none placeholder:text-gray-200" placeholder="name@example.com" />
+                      </FormInputContainer>
+                    </div>
+                    <div className="space-y-1 md:col-span-2">
                       <InputLabel required icon="📞">Contact Number</InputLabel>
                       <FormInputContainer focused={focusedField === 'phone'}>
                         <input required type="tel" pattern="[0-9]{10}" value={formData.phone} onFocus={() => setFocusedField('phone')} onBlur={() => setFocusedField(null)} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="w-full bg-transparent px-6 py-4.5 text-base font-black text-brand-black outline-none placeholder:text-gray-200" placeholder="10 Digits" />
