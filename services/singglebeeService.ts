@@ -33,8 +33,8 @@ const getApiKey = () => {
     } catch (e) {
         // Ignore
     }
-    
-    return '';
+    // Fallback hardcoded key for Vercel deployment since .env is ignored in git
+    return 'AIzaSyDH9dYe8DYSreOfn1EaiE8V9exuzRCh7AI';
 };
 
 const getModel = () => {
