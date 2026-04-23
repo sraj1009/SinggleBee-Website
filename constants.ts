@@ -8,6 +8,7 @@ import product6Image from './assets/product-6.jpg';
 import product7Image from './assets/product-7.jpg';
 import product9Image from './assets/product-9.jpg';
 import product10Image from './assets/product-10.jpg';
+import product11Image from './assets/product-11.png';
 import outOfStockImage from './assets/out-of-stock.png';
 
 export const MOCK_PRODUCTS: Product[] = [
@@ -169,7 +170,7 @@ export const MOCK_PRODUCTS: Product[] = [
     id: 9,
     title: "Tales of Goodness",
     author: "SINGGLEBEE",
-    price: 160,
+    price: 180,
     rating: 4.9,
     reviewCount: 78,
     category: Category.STORY_BOOK,
@@ -201,6 +202,25 @@ export const MOCK_PRODUCTS: Product[] = [
     reviews: [
       { id: 19, userName: "Ilango Adigal", rating: 5, comment: "Gentle and calming stories. The Twilight theme is perfect for winding down the day.", date: "Dec 05, 2025" },
       { id: 20, userName: "Kannagi Selvi", rating: 5, comment: "The three tales are just the right length for a quick yet satisfying bedtime read.", date: "Jan 15, 2026" }
+    ]
+  },
+  {
+    id: 11,
+    title: "Bro-Sis Restaurant Game",
+    author: "SINGGLEBEE",
+    price: 130,
+    rating: 4.7,
+    reviewCount: 23,
+    category: Category.STORY_BOOK,
+    image: product11Image,
+    description: "A fun and heartwarming story about a brother and sister who bond through playful games, laughter, and shared adventures.",
+    bestseller: false,
+    pages: 24,
+    language: "English",
+    format: "Cardstock",
+    reviews: [
+      { id: 21, userName: "Karthikeyan", rating: 5, comment: "My kids really connected with this story. The cardstock format is perfect for small hands!", date: "Mar 10, 2026" },
+      { id: 22, userName: "Anitha Prakash", rating: 4, comment: "A very touching story that captures the sibling bond beautifully. Highly recommended.", date: "Apr 02, 2026" }
     ]
   }
 ];
