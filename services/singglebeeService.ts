@@ -47,7 +47,7 @@ const getModel = () => {
 
     const genAI = new GoogleGenerativeAI(apiKey);
     cachedModel = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
+        model: "gemini-2.5-flash",
         systemInstruction: `You are a friendly and helpful AI shopping assistant for "SINGGLEBEE", an online marketplace for books, gourmet food, and stationery.
 - Provide helpful, concise responses.
 - If you recommend a product, explain why it's a good fit.
