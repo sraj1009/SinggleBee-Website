@@ -3,10 +3,10 @@
   <h1>🐝 SINGGLEBEE</h1>
   <p><strong>The Sweetest Place for Knowledge, Treats, and Premium Goods.</strong></p>
 
-  [![React](https://img.shields.io/badge/React-18.x-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
+  [![React](https://img.shields.io/badge/React-19.x-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
   [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-  [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.x-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-  [![Vite](https://img.shields.io/badge/Vite-5.x-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+  [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.x-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+  [![Vite](https://img.shields.io/badge/Vite-6.x-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 </div>
 
 ---
@@ -18,6 +18,7 @@
 ## ✨ Signature Features
 
 - **🎨 Artisan Visuals**: High-end glassmorphism and a consistent "Honeycomb" design language.
+- **🤖 Hive Assistant**: An intelligent AI shopping assistant powered by Gemini 2.5 Flash.
 - **📱 Fluid Responsiveness**: A "Perfect Phone UI" optimized for every screen size and touch gesture.
 - **🛒 Elegant Cart**: A seamless, persistent shopping experience with a stunning sliding drawer.
 - **🛡️ Secure Transactions**: Professional checkout flows with manual UPI/GPay verification and receipt uploads.
@@ -28,11 +29,11 @@
 
 | Technology | Purpose |
 | :--- | :--- |
-| **React 18** | High-performance UI library for the modern web. |
+| **React 19** | High-performance UI library for the modern web. |
 | **TypeScript** | Type-safe development for a robust and maintainable codebase. |
-| **Tailwind CSS** | Atomic CSS framework drive premium, custom aesthetics. |
-| **Vite** | Lightning-fast build tooling for an optimized dev experience. |
-| **Lucide & SVGs**| Crisp, professional iconography and custom brand assets. |
+| **Tailwind CSS 4** | Atomic CSS framework driving premium, custom aesthetics. |
+| **Google Gemini AI**| Powering the intelligent Hive Assistant for smart shopping. |
+| **Vite 6** | Lightning-fast build tooling for an optimized dev experience. |
 | **Formspree** | Powering our dynamic forms and order processing. |
 
 ## 🚀 Getting Started
@@ -41,16 +42,22 @@ Follow these steps to bring the hive to life on your local machine.
 
 ### 1. Clone the Hive
 ```bash
-git clone https://github.com/your-username/singglebee.git
-cd singglebee
+git clone https://github.com/sraj1009/SinggleBee-Website.git
+cd SinggleBee-Website
 ```
 
-### 2. Gather the Nectar
+### 2. Configure Environment
+Create a `.env` file in the root directory:
+```env
+VITE_SINGGLEBEE_API_KEY=your_gemini_api_key_here
+```
+
+### 3. Gather the Nectar
 ```bash
 npm install
 ```
 
-### 3. Let it Buzz
+### 4. Let it Buzz
 ```bash
 npm run dev
 ```
