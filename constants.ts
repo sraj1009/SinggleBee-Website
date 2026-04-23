@@ -9,6 +9,7 @@ import product7Image from './assets/product-7.jpg';
 import product9Image from './assets/product-9.jpg';
 import product10Image from './assets/product-10.jpg';
 import product11Image from './assets/product-11.png';
+import product12Image from './assets/product-12.png';
 import outOfStockImage from './assets/out-of-stock.png';
 
 export const MOCK_PRODUCTS: Product[] = [
@@ -221,6 +222,25 @@ export const MOCK_PRODUCTS: Product[] = [
     reviews: [
       { id: 21, userName: "Karthikeyan", rating: 5, comment: "My kids really connected with this story. The cardstock format is perfect for small hands!", date: "Mar 10, 2026" },
       { id: 22, userName: "Anitha Prakash", rating: 4, comment: "A very touching story that captures the sibling bond beautifully. Highly recommended.", date: "Apr 02, 2026" }
+    ]
+  },
+  {
+    id: 12,
+    title: "அண்ணன் - தங்கை உணவகம் விளையாட்டு",
+    author: "MOHANRAJ PJ & SINGGLEBEE TEAM",
+    price: 130,
+    rating: 4.7,
+    reviewCount: 20,
+    category: Category.STORY_BOOK,
+    image: product12Image,
+    description: "A delightful story about a brother and sister growing closer through playful moments, fun, and shared experiences.",
+    bestseller: true,
+    pages: 24,
+    language: "Tamil",
+    format: "Cardstock",
+    reviews: [
+      { id: 23, userName: "Lakshmi Priya", rating: 5, comment: "குழந்தைகளுக்கு மிகவும் பிடிக்கும் அருமையான கதை. தரம் மிக அருமை!", date: "Apr 15, 2026" },
+      { id: 24, userName: "Surya Prakash", rating: 4, comment: "அண்ணன் தங்கை பாசத்தை அழகாக சொல்கிறது. நன்றி.", date: "Apr 20, 2026" }
     ]
   }
 ];
