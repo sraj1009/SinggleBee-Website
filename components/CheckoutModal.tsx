@@ -33,7 +33,7 @@ const FormInputContainer = ({ children, focused }: React.PropsWithChildren<{ foc
 );
 
 const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, subtotal, shippingFee, total, cart, onSuccess, user }) => {
-  const [step, setStep] = useState<'details' | 'processing' | 'success'>('details');
+  const [step, setStep] = useState<'shipping' | 'payment' | 'processing' | 'success'>('shipping');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -53,7 +53,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, subtotal
 
   useEffect(() => {
     if (isOpen) {
-      setStep('details');
+      setStep('shipping');
       setScreenshots([]);
       setPreviews([]);
       setSubmissionError(null);
@@ -111,10 +111,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, subtotal
   const isValidPhone = (phone: string) => /^[0-9]{10}$/.test(phone);
   const isValidCityState = (value: string) => /^[a-zA-Z\s]+$/.test(value) && value.trim().length >= 2;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Validate required fields explicitly to show exactly what's missing
+  const validateShippingStep = () => {
     const missingFields: string[] = [];
     if (!formData.name.trim()) missingFields.push('Name');
     if (!formData.email.trim()) missingFields.push('Email');
@@ -125,31 +122,54 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, subtotal
     if (!formData.zip.trim()) missingFields.push('Pin Code');
 
     if (missingFields.length > 0) {
-      setSubmissionError(`Please fill in: ${missingFields.join(', ')}`);
-      return;
+      setSubmissionError(`Missing: ${missingFields.join(', ')}`);
+      return false;
     }
     if (!isValidEmail(formData.email)) {
-      setSubmissionError('Please enter a valid email address (e.g. name@example.com)');
-      return;
+      setSubmissionError('Invalid email address');
+      return false;
     }
     if (!isValidPhone(formData.phone)) {
-      setSubmissionError('Phone number must be exactly 10 digits');
-      return;
+      setSubmissionError('Phone must be 10 digits');
+      return false;
     }
     if (!isValidCityState(formData.city)) {
-      setSubmissionError('City must contain only letters');
-      return;
+      setSubmissionError('City must be text');
+      return false;
     }
     if (!isValidCityState(formData.state)) {
-      setSubmissionError('State must contain only letters');
-      return;
+      setSubmissionError('State must be text');
+      return false;
     }
     if (!/^[0-9]{6}$/.test(formData.zip)) {
-      setSubmissionError('Pincode must be exactly 6 digits');
-      return;
+      setSubmissionError('Pincode must be 6 digits');
+      return false;
     }
+    setSubmissionError(null);
+    return true;
+  };
+
+  const handleNextStep = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validateShippingStep()) {
+      setStep('payment');
+      // Scroll to top of modal content
+      const modalContent = document.querySelector('.custom-scrollbar');
+      if (modalContent) modalContent.scrollTop = 0;
+    }
+  };
+
+  const handlePrevStep = () => {
+    setStep('shipping');
+    const modalContent = document.querySelector('.custom-scrollbar');
+    if (modalContent) modalContent.scrollTop = 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
     if (screenshots.length === 0) {
-      alert("Please upload your Honey Receipt (UPI/GPay Screenshot)!");
+      alert("Please upload your Payment Receipt (UPI/GPay Screenshot)!");
       return;
     }
 
@@ -235,10 +255,11 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, subtotal
 
           <div className="flex items-center gap-2 sm:gap-4 md:gap-6 flex-shrink-0">
             <div className="hidden lg:flex flex-col items-end">
-              <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Hive Progress</span>
+              <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Checkout Steps</span>
               <div className="flex gap-1.5">
-                <div className={`w-10 h-2 rounded-full transition-all duration-700 ${step === 'details' ? 'bg-brand-primary shadow-lg' : 'bg-brand-meadow'}`}></div>
-                <div className={`w-10 h-2 rounded-full transition-all duration-700 ${step === 'processing' ? 'bg-brand-primary shadow-lg' : step === 'success' ? 'bg-brand-meadow' : 'bg-brand-light'}`}></div>
+                <div className={`w-8 h-2 rounded-full transition-all duration-700 ${step === 'shipping' ? 'bg-brand-primary shadow-lg scale-x-110' : 'bg-brand-meadow'}`}></div>
+                <div className={`w-8 h-2 rounded-full transition-all duration-700 ${step === 'payment' ? 'bg-brand-primary shadow-lg scale-x-110' : (step === 'processing' || step === 'success') ? 'bg-brand-meadow' : 'bg-brand-light'}`}></div>
+                <div className={`w-8 h-2 rounded-full transition-all duration-700 ${step === 'success' ? 'bg-brand-meadow' : step === 'processing' ? 'bg-brand-primary animate-pulse' : 'bg-brand-light'}`}></div>
               </div>
             </div>
             <button onClick={onClose} className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl sm:rounded-2xl bg-brand-light flex items-center justify-center text-brand-black hover:bg-brand-rose hover:text-white transition-all active:scale-90 font-black shadow-sm text-sm">✕</button>
@@ -246,14 +267,13 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, subtotal
         </div>
 
         <div className="flex-grow overflow-y-auto custom-scrollbar relative z-0">
-          {step === 'details' && (
-            <form onSubmit={handleSubmit} className="flex flex-col lg:flex-row h-full">
-
-              {/* Left Column: Summary & Payment */}
+          {step === 'shipping' && (
+            <form onSubmit={handleNextStep} className="flex flex-col lg:flex-row h-full">
+              {/* Left Column: Summary */}
               <div className="w-full lg:w-[40%] bg-brand-light/40 border-b lg:border-b-0 lg:border-r border-brand-light p-4 sm:p-6 md:p-12 space-y-5 sm:space-y-8 md:space-y-10">
                 {submissionError && (
                   <div className="bg-rose-50 border-2 border-brand-rose/10 p-5 rounded-3xl animate-buzz shadow-sm">
-                    <p className="text-brand-rose font-black text-xs text-center leading-relaxed">🚨 BUZZ ERROR: {submissionError}</p>
+                    <p className="text-brand-rose font-black text-xs text-center leading-relaxed">🚨 CHECKOUT ERROR: {submissionError}</p>
                   </div>
                 )}
 
@@ -280,57 +300,31 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, subtotal
                   </div>
                 </div>
 
-                {/* UPI Payment Card */}
-                <div className="bg-brand-dark p-5 sm:p-7 md:p-10 rounded-2xl sm:rounded-[2rem] md:rounded-[3rem] shadow-2xl relative overflow-hidden group text-white">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none"></div>
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/20 rounded-full blur-[60px] -mr-16 -mt-16"></div>
-
-                  <h4 className="font-black text-brand-primary uppercase text-[11px] tracking-[0.4em] mb-8 flex items-center gap-3">
-                    <span className="animate-buzz inline-block">🍯</span> Payment To:
-                  </h4>
-
-                  <div onClick={copyUpiId} className="bg-white/10 border-2 border-white/10 rounded-xl sm:rounded-2xl md:rounded-3xl p-3 sm:p-4 md:p-6 cursor-pointer hover:bg-white/20 transition-all group/upi shadow-inner">
-                    <div className="flex items-center gap-2 sm:gap-3 md:gap-4 mb-3 sm:mb-5">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-brand-primary rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl md:text-3xl shadow-lg border-2 border-white/20 group-hover/upi:buzz transition-transform flex-shrink-0">
-                        <BeeCharacter size="2rem" />
+                <div className="bg-white/60 p-6 rounded-[2rem] border-2 border-brand-primary/10 space-y-4">
+                  <h5 className="font-black text-[10px] text-brand-secondary uppercase tracking-widest">Order Summary</h5>
+                  <div className="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar pr-2">
+                    {cart.map((item, idx) => (
+                      <div key={idx} className="flex justify-between items-center text-xs">
+                        <span className="font-bold text-gray-600 truncate mr-4">{item.title} x{item.quantity}</span>
+                        <span className="font-black text-brand-black flex-shrink-0">₹{(item.price * item.quantity).toLocaleString('en-IN')}</span>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <span className="block text-[8px] sm:text-[9px] font-black text-brand-primary uppercase tracking-widest mb-0.5 sm:mb-1 opacity-70">Honey ID</span>
-                        <p className="text-[11px] sm:text-sm md:text-lg font-black text-white/90 truncate tracking-tight">
-                          singglebee.rsventures@okhdfcbank
-                        </p>
-                      </div>
-                    </div>
-                    <div className={`w-full py-2.5 sm:py-3 md:py-4 rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] md:text-[11px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-center transition-all ${copied ? 'bg-brand-meadow text-white' : 'bg-brand-primary text-brand-black shadow-lg hover:scale-105'}`}>
-                      {copied ? '✨ ID Copied! ✨' : 'Click to Copy ID'}
-                    </div>
-                  </div>
-
-                  <div className="mt-8 flex items-center justify-center gap-3">
-                    <span className="text-white/20 text-[10px] font-black uppercase tracking-[0.2em] italic">GPay, PhonePe, PayTM</span>
-                    <div className="flex gap-1">
-                      <div className="w-1 h-1 rounded-full bg-brand-primary/40"></div>
-                      <div className="w-1 h-1 rounded-full bg-brand-primary/40"></div>
-                      <div className="w-1 h-1 rounded-full bg-brand-primary/40"></div>
-                    </div>
+                    ))}
                   </div>
                 </div>
 
-                <div className="text-center px-4">
-                  <p className="text-[11px] font-black text-brand-secondary/40 uppercase tracking-[0.3em] italic mb-2">Hive Standard</p>
-                  <p className="text-gray-400 font-bold text-xs leading-relaxed">
-                    Once our worker bees verify your receipt, we'll buzz your tracking ID to your email instantly!
+                <div className="text-center px-4 opacity-60">
+                  <p className="text-[11px] font-black text-brand-secondary/40 uppercase tracking-[0.3em] italic mb-2">Step 1 of 2</p>
+                  <p className="text-gray-400 font-bold text-[10px] leading-relaxed uppercase tracking-wider">
+                    Provide your delivery information to proceed to payment.
                   </p>
                 </div>
               </div>
 
-              {/* Right Column: Details & Upload */}
+              {/* Right Column: Details */}
               <div className="w-full lg:w-[60%] p-4 sm:p-6 md:p-14 space-y-6 sm:space-y-8 md:space-y-12 bg-white">
-
-                {/* Personal Section */}
                 <div className="space-y-8 animate-fade-in">
                   <div className="flex items-center gap-4 pb-4 border-b border-brand-light">
-                    <div className="p-3 bg-brand-accent rounded-2xl shadow-sm">👤</div>
+                    <div className="flex items-center justify-center w-10 h-10 bg-brand-primary text-brand-black rounded-full font-black shadow-sm">1</div>
                     <h4 className="font-black text-brand-black uppercase text-sm tracking-[0.4em]">Personal Hive Info</h4>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -355,10 +349,9 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, subtotal
                   </div>
                 </div>
 
-                {/* Delivery Section */}
                 <div className="space-y-8 animate-fade-in" style={{ animationDelay: '0.1s' }}>
                   <div className="flex items-center gap-4 pb-4 border-b border-brand-light">
-                    <div className="p-3 bg-brand-accent rounded-2xl shadow-sm">📍</div>
+                    <div className="flex items-center justify-center w-10 h-10 bg-brand-primary text-brand-black rounded-full font-black shadow-sm">2</div>
                     <h4 className="font-black text-brand-black uppercase text-sm tracking-[0.4em]">Delivery Hive</h4>
                   </div>
                   <div className="space-y-8">
@@ -399,62 +392,140 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, subtotal
                   </div>
                 </div>
 
-                {/* Upload Proof Area */}
-                <div className="pt-4 md:pt-6">
-                  <div className="bg-brand-light/30 p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] border-2 border-dashed border-brand-primary/20 transition-all hover:bg-white hover:border-brand-primary hover:shadow-honey relative group overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
-                    <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
-                      <div className="flex items-center gap-4">
-                        <div className="p-4 bg-white rounded-2xl shadow-sm text-3xl">📸</div>
-                        <div>
-                          <h4 className="font-black text-brand-black uppercase text-xs tracking-[0.3em]">Final Step: Buzz Proof</h4>
-                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Upload UPI / GPay Receipt</p>
-                        </div>
-                      </div>
-                      <span className="text-[9px] font-black text-brand-rose bg-white px-4 py-2 rounded-full border-2 border-rose-50 uppercase tracking-widest shadow-sm">Mandatory</span>
-                    </div>
-
-                    <div onClick={() => fileInputRef.current?.click()} className="group/upload relative w-full border-4 border-dashed border-brand-primary/10 bg-white rounded-[2rem] p-8 md:p-12 hover:border-brand-primary hover:shadow-xl cursor-pointer transition-all text-center">
-                      <input type="file" ref={fileInputRef} className="hidden" accept="image/*" multiple onChange={handleFileChange} />
-                      {previews.length > 0 ? (
-                        <div className="flex flex-wrap justify-center gap-5 animate-fade-in">
-                          {previews.map((p, i) => (
-                            <div key={i} className="relative group/thumb">
-                              <img src={p} alt="Proof" className="w-20 h-28 object-cover rounded-xl border-4 border-white shadow-xl transition-transform group-hover/thumb:scale-105" />
-                              <div className="absolute inset-0 bg-brand-primary/10 rounded-xl opacity-0 group-hover/thumb:opacity-100 transition-opacity"></div>
-                              <button
-                                onClick={(e) => handleRemoveFile(i, e)}
-                                className="absolute -top-2 -right-2 w-6 h-6 bg-brand-rose text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md opacity-0 group-hover/thumb:opacity-100 transition-opacity hover:scale-110"
-                                type="button"
-                              >
-                                ✕
-                              </button>
-                            </div>
-                          ))}
-                          <div className="w-20 h-28 bg-brand-light border-4 border-dashed border-brand-primary/10 rounded-xl flex items-center justify-center text-brand-secondary text-3xl font-black">+</div>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center">
-                          <div className="w-16 h-16 rounded-2xl bg-brand-light flex items-center justify-center mb-5 text-brand-primary group-hover/upload:buzz transition-all shadow-sm">
-                            <span className="text-4xl">🧾</span>
-                          </div>
-                          <p className="text-xl text-brand-black font-black tracking-tight">Tap to buzz your receipt!</p>
-                          <p className="text-[10px] text-gray-300 font-bold uppercase tracking-[0.4em] mt-2">Maximum 10MB per file</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
                 <div className="pt-6">
                   <button type="submit" className="group relative w-full bg-brand-black text-brand-primary font-black py-4 sm:py-6 md:py-8 rounded-xl sm:rounded-2xl md:rounded-[2.5rem] shadow-xl hover:scale-[1.03] active:scale-95 transition-all text-base sm:text-xl md:text-3xl flex items-center justify-center gap-3 sm:gap-4 md:gap-6 overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-shimmer pointer-events-none"></div>
+                    <div className="flex flex-col items-center">
+                      <span className="text-[7px] sm:text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] sm:tracking-[0.5em] opacity-40 leading-none mb-1">Proceed to Payment</span>
+                      <span className="leading-none text-sm sm:text-lg md:text-2xl">Next: Payment Method 🍯</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </form>
+          )}
+
+          {step === 'payment' && (
+            <form onSubmit={handleSubmit} className="flex flex-col lg:flex-row h-full animate-slide-right">
+              {/* Left Column: Summary */}
+              <div className="w-full lg:w-[40%] bg-brand-light/40 border-b lg:border-b-0 lg:border-r border-brand-light p-4 sm:p-6 md:p-12 space-y-5 sm:space-y-8 md:space-y-10">
+                {/* Total Card */}
+                <div className="bg-white p-5 sm:p-7 md:p-10 rounded-2xl sm:rounded-[2rem] md:rounded-[3rem] shadow-honey border-2 sm:border-4 border-white relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-brand-primary/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
+                  <span className="text-brand-secondary/40 font-black text-[10px] sm:text-[11px] uppercase tracking-[0.3em] sm:tracking-[0.4em] block mb-3 sm:mb-5 text-center">Final Amount</span>
+                  <div className="flex items-center justify-center gap-1 sm:gap-2">
+                    <span className="text-brand-primary text-xl sm:text-2xl md:text-3xl font-black">₹</span>
+                    <span className="text-4xl sm:text-5xl md:text-7xl font-black text-brand-black tracking-tighter">{total.toLocaleString('en-IN')}</span>
+                  </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-3xl border-2 border-brand-primary/10">
+                  <h5 className="font-black text-[10px] text-brand-secondary uppercase tracking-widest mb-4">Delivery to:</h5>
+                  <p className="text-xs font-black text-brand-black mb-1">{formData.name}</p>
+                  <p className="text-[11px] text-gray-500 font-bold leading-relaxed">{formData.address}, {formData.city}, {formData.state} - {formData.zip}</p>
+                  <button type="button" onClick={handlePrevStep} className="mt-4 text-[10px] font-black text-brand-primary uppercase tracking-widest hover:underline">Edit Address</button>
+                </div>
+
+                <div className="text-center px-4">
+                  <p className="text-[11px] font-black text-brand-secondary/40 uppercase tracking-[0.3em] italic mb-2">Step 2 of 2</p>
+                  <p className="text-gray-400 font-bold text-[10px] leading-relaxed uppercase tracking-wider">
+                    Complete your payment and upload the receipt to finalize your order.
+                  </p>
+                </div>
+              </div>
+
+              {/* Right Column: Payment & Upload */}
+              <div className="w-full lg:w-[60%] p-4 sm:p-6 md:p-14 space-y-8 sm:space-y-10 md:space-y-12 bg-white">
+                {/* UPI Payment Card */}
+                <div className="bg-brand-dark p-6 sm:p-8 md:p-10 rounded-3xl sm:rounded-[3rem] shadow-2xl relative overflow-hidden group text-white">
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none"></div>
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/20 rounded-full blur-[60px] -mr-16 -mt-16"></div>
+
+                  <div className="flex items-center justify-between mb-8">
+                    <h4 className="font-black text-brand-primary uppercase text-[11px] tracking-[0.4em] flex items-center gap-3">
+                      <span className="animate-buzz inline-block">🍯</span> Step 3: Pay Now
+                    </h4>
+                    <div className="flex gap-2">
+                       <div className="px-3 py-1 bg-white/10 rounded-full text-[8px] font-black uppercase tracking-widest">GPay</div>
+                       <div className="px-3 py-1 bg-white/10 rounded-full text-[8px] font-black uppercase tracking-widest">PhonePe</div>
+                    </div>
+                  </div>
+
+                  <div onClick={copyUpiId} className="bg-white/10 border-2 border-white/10 rounded-2xl md:rounded-3xl p-4 sm:p-6 cursor-pointer hover:bg-white/20 transition-all group/upi shadow-inner">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-12 h-12 md:w-16 md:h-16 bg-brand-primary rounded-2xl flex items-center justify-center text-2xl md:text-4xl shadow-lg border-2 border-white/20 group-hover/upi:buzz transition-transform flex-shrink-0">
+                        <BeeCharacter size="2.5rem" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="block text-[9px] font-black text-brand-primary uppercase tracking-widest mb-1 opacity-70">Official UPI ID</span>
+                        <p className="text-sm sm:text-lg md:text-2xl font-black text-white/90 truncate tracking-tight">
+                          singglebee.rsventures@okhdfcbank
+                        </p>
+                      </div>
+                    </div>
+                    <div className={`w-full py-3 sm:py-4 rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-center transition-all ${copied ? 'bg-brand-meadow text-white' : 'bg-brand-primary text-brand-black shadow-lg hover:scale-[1.02]'}`}>
+                      {copied ? '✨ ID Copied! Ready to Pay ✨' : 'Click to Copy UPI ID'}
+                    </div>
+                  </div>
+                  
+                  <div className="mt-8 flex items-start gap-4 p-4 bg-white/5 rounded-2xl border border-white/5">
+                    <span className="text-2xl">💡</span>
+                    <p className="text-[10px] md:text-xs text-white/60 font-bold leading-relaxed">
+                      Please pay <span className="text-brand-primary">₹{total.toLocaleString('en-IN')}</span> and take a screenshot of the successful transaction to upload below.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Upload Proof Area */}
+                <div className="space-y-6">
+                   <div className="flex items-center gap-4 pb-4 border-b border-brand-light">
+                    <div className="flex items-center justify-center w-10 h-10 bg-brand-primary text-brand-black rounded-full font-black shadow-sm">4</div>
+                    <h4 className="font-black text-brand-black uppercase text-sm tracking-[0.4em]">Step 4: Buzz Proof</h4>
+                  </div>
+                  
+                  <div onClick={() => fileInputRef.current?.click()} className="group/upload relative w-full border-4 border-dashed border-brand-primary/10 bg-brand-light/30 rounded-[2rem] p-8 md:p-12 hover:border-brand-primary hover:bg-white hover:shadow-xl cursor-pointer transition-all text-center">
+                    <input type="file" ref={fileInputRef} className="hidden" accept="image/*" multiple onChange={handleFileChange} />
+                    {previews.length > 0 ? (
+                      <div className="flex flex-wrap justify-center gap-5 animate-fade-in">
+                        {previews.map((p, i) => (
+                          <div key={i} className="relative group/thumb">
+                            <img src={p} alt="Proof" className="w-24 h-32 object-cover rounded-xl border-4 border-white shadow-xl transition-transform group-hover/thumb:scale-105" />
+                            <button
+                              onClick={(e) => handleRemoveFile(i, e)}
+                              className="absolute -top-3 -right-3 w-8 h-8 bg-brand-rose text-white rounded-full flex items-center justify-center text-sm font-bold shadow-md hover:scale-110 transition-transform"
+                              type="button"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                        <div className="w-24 h-32 bg-white border-4 border-dashed border-brand-primary/10 rounded-xl flex items-center justify-center text-brand-secondary text-3xl font-black hover:border-brand-primary transition-colors">+</div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center">
+                        <div className="w-20 h-20 rounded-3xl bg-white flex items-center justify-center mb-6 text-brand-primary group-hover/upload:buzz transition-all shadow-honey">
+                          <span className="text-5xl">🧾</span>
+                        </div>
+                        <p className="text-2xl text-brand-black font-black tracking-tight">Upload Your Receipt</p>
+                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.4em] mt-3">Tap to browse files (Max 10MB)</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex gap-4 pt-6">
+                  <button type="button" onClick={handlePrevStep} className="w-24 md:w-32 bg-brand-light text-brand-black font-black rounded-2xl md:rounded-[2.5rem] hover:bg-gray-200 transition-all flex flex-col items-center justify-center group">
+                    <span className="text-[10px] opacity-40 uppercase tracking-widest mb-1">Back</span>
+                    <span className="text-sm md:text-base">Address</span>
+                  </button>
+                  <button type="submit" className="group relative flex-1 bg-brand-black text-brand-primary font-black py-6 md:py-8 rounded-2xl md:rounded-[2.5rem] shadow-xl hover:scale-[1.02] active:scale-95 transition-all text-xl md:text-3xl flex items-center justify-center gap-4 overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-shimmer pointer-events-none"></div>
                     <span className="group-hover:animate-buzz flex items-center justify-center">
-                      <BeeCharacter size="2rem" />
+                      <BeeCharacter size="2.5rem" />
                     </span>
                     <div className="flex flex-col items-start">
-                      <span className="text-[7px] sm:text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] sm:tracking-[0.5em] opacity-40 leading-none mb-1">Nectar Sequence Finalized</span>
-                      <span className="leading-none text-sm sm:text-lg md:text-2xl">Confirm Hive Order</span>
+                      <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 leading-none mb-2">Final Step</span>
+                      <span className="leading-none text-sm md:text-2xl">Confirm Hive Order</span>
                     </div>
                   </button>
                 </div>
