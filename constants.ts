@@ -11,7 +11,7 @@ import product10Image from './assets/product-10.jpg';
 import product11Image from './assets/product-11.png';
 import product12Image from './assets/product-12.png';
 import product13Image from './assets/product-13.jpg';
-import product14Image from './assets/product-14.jpg';
+import product14Image from './assets/product-14.png';
 import product15Image from './assets/product-15.jpg';
 import product16Image from './assets/product-16.jpg';
 import outOfStockImage from './assets/out-of-stock.png';
