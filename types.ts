@@ -36,7 +36,7 @@ export interface Product {
   bestseller?: boolean;
   pages?: number;
   language?: string;
-  format?: 'Hardcover' | 'Paperback' | 'Kindle' | 'Box' | 'Pack' | 'Jar' | 'Set' | 'Cardstock';
+  format?: 'Hardcover' | 'Paperback' | 'Kindle' | 'Box' | 'Pack' | 'Jar' | 'Set' | 'Cardstock' | 'Profilecut_Boardbook';
   reviews?: Review[];
   isComingSoon?: boolean;
   isOutOfStock?: boolean;
