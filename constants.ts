@@ -15,6 +15,7 @@ import product14Image from './assets/product-14.png';
 import product15Image from './assets/product-15.jpg';
 import product16Image from './assets/product-16.jpg';
 import product17Image from './assets/product-17.jpg';
+import product18Image from './assets/product-18.jpg';
 import outOfStockImage from './assets/out-of-stock.png';
 
 export const MOCK_PRODUCTS: Product[] = [
@@ -341,6 +342,25 @@ export const MOCK_PRODUCTS: Product[] = [
     reviews: [
       { id: 33, userName: "Vijay", rating: 5, comment: "Amazing science stories! It makes complex topics so easy for kids to understand.", date: "Apr 24, 2026" },
       { id: 34, userName: "Lakshmi", rating: 4, comment: "Very informative and well-written. My daughter is now fascinated with space!", date: "Apr 24, 2026" }
+    ]
+  },
+  {
+    id: 18,
+    title: "அதிசய குழந்தைகளுக்கான அறிவியல் கதைகள்",
+    author: "SINGGLEBEE TEAM",
+    price: 220,
+    rating: 4.7,
+    reviewCount: 25,
+    category: Category.STORY_BOOK,
+    image: product18Image,
+    description: "An exciting collection of science stories that ignite curiosity, explain ideas simply, and encourage children to explore and discover the world around them.",
+    bestseller: false,
+    pages: 40,
+    language: "Tamil",
+    format: "Cardstock",
+    reviews: [
+      { id: 35, userName: "Vignesh", rating: 5, comment: "அறிவியல் கதைகள் மிகவும் அருமை! குழந்தைகளுக்கு எளிதாக புரியும் வகையில் உள்ளது.", date: "Apr 24, 2026" },
+      { id: 36, userName: "Ramya", rating: 4, comment: "நல்ல முயற்சி. அறிவியல் ஆர்வத்தை தூண்டும் வகையில் உள்ளது.", date: "Apr 24, 2026" }
     ]
   }
 ];
