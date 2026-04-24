@@ -11,6 +11,7 @@ import product10Image from './assets/product-10.jpg';
 import product11Image from './assets/product-11.png';
 import product12Image from './assets/product-12.png';
 import product13Image from './assets/product-13.jpg';
+import product14Image from './assets/product-14.jpg';
 import outOfStockImage from './assets/out-of-stock.png';
 
 export const MOCK_PRODUCTS: Product[] = [
@@ -261,6 +262,25 @@ export const MOCK_PRODUCTS: Product[] = [
     reviews: [
       { id: 25, userName: "Murugan M", rating: 5, comment: "Very useful and beautifully illustrated. My children love the gardening tips!", date: "Apr 21, 2026" },
       { id: 26, userName: "Kavitha", rating: 4, comment: "Excellent guide for small spaces. The story makes it engaging for kids.", date: "Apr 22, 2026" }
+    ]
+  },
+  {
+    id: 14,
+    title: "மாடித் தோட்டம்",
+    author: "MOHANRAJ PJ & SINGGLEBEE TEAM",
+    price: 149,
+    rating: 4.7,
+    reviewCount: 26,
+    category: Category.STORY_BOOK,
+    image: product14Image,
+    description: "A practical book on building a terrace garden, cultivating fresh plants, and embracing eco-friendly urban gardening in limited spaces.",
+    bestseller: false,
+    pages: 20,
+    language: "Tamil",
+    format: "Cardstock",
+    reviews: [
+      { id: 27, userName: "Arul", rating: 5, comment: "மிகவும் பயனுள்ள புத்தகம். மாடித் தோட்டம் அமைக்க சிறந்த வழிகாட்டி.", date: "Apr 23, 2026" },
+      { id: 28, userName: "Selvam", rating: 4, comment: "நல்ல விளக்கங்கள். எளிமையாக புரியும் வண்ணம் உள்ளது.", date: "Apr 24, 2026" }
     ]
   }
 ];
