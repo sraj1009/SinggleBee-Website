@@ -19,6 +19,7 @@ import product18Image from './assets/product-18.jpg';
 import product19Image from './assets/product-19.jpg';
 import product20Image from './assets/product-20.png';
 import product21Image from './assets/product-21.jpg';
+import product22Image from './assets/product-22.png';
 import outOfStockImage from './assets/out-of-stock.png';
 
 export const MOCK_PRODUCTS: Product[] = [
@@ -421,6 +422,25 @@ export const MOCK_PRODUCTS: Product[] = [
     reviews: [
       { id: 41, userName: "Kavitha Raj", rating: 5, comment: "Tiny tales but big on magic! My daughter loves the stories about everyday magic.", date: "Apr 24, 2026" },
       { id: 42, userName: "Sathish", rating: 4, comment: "Very creative and magical. Perfect for bedtime reading.", date: "Apr 24, 2026" }
+    ]
+  },
+  {
+    id: 22,
+    title: "BEE’s DAY OUT",
+    author: "MOHANRAJ PJ & SINGGLEBEE TEAM",
+    price: 240,
+    rating: 4.6,
+    reviewCount: 27,
+    category: Category.STORY_BOOK,
+    image: product22Image,
+    description: "A cheerful story of a little bee’s adventure, exploring nature, meeting friends, and discovering joy, curiosity, and small wonders throughout the day.",
+    bestseller: true,
+    pages: 16,
+    language: "English",
+    format: "Profilecut_Boardbook",
+    reviews: [
+      { id: 43, userName: "Ganesh", rating: 5, comment: "What a cheerful book! My toddler loves following the bee's adventure.", date: "Apr 24, 2026" },
+      { id: 44, userName: "Deepika", rating: 4, comment: "The profile-cut board book format is very unique and sturdy for kids.", date: "Apr 24, 2026" }
     ]
   }
 ];
