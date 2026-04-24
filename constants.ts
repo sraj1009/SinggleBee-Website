@@ -12,6 +12,7 @@ import product11Image from './assets/product-11.png';
 import product12Image from './assets/product-12.png';
 import product13Image from './assets/product-13.jpg';
 import product14Image from './assets/product-14.jpg';
+import product15Image from './assets/product-15.jpg';
 import outOfStockImage from './assets/out-of-stock.png';
 
 export const MOCK_PRODUCTS: Product[] = [
@@ -281,6 +282,25 @@ export const MOCK_PRODUCTS: Product[] = [
     reviews: [
       { id: 27, userName: "Arul", rating: 5, comment: "மிகவும் பயனுள்ள புத்தகம். மாடித் தோட்டம் அமைக்க சிறந்த வழிகாட்டி.", date: "Apr 23, 2026" },
       { id: 28, userName: "Selvam", rating: 4, comment: "நல்ல விளக்கங்கள். எளிமையாக புரியும் வண்ணம் உள்ளது.", date: "Apr 24, 2026" }
+    ]
+  },
+  {
+    id: 15,
+    title: "நல்லொழுக்கக் கதைகள்",
+    author: "SINGGLEBEE TEAM",
+    price: 180,
+    rating: 4.6,
+    reviewCount: 28,
+    category: Category.STORY_BOOK,
+    image: product15Image,
+    description: "A collection of inspiring stories that highlight kindness, honesty, and compassion, teaching valuable life lessons through simple, meaningful everyday moments.",
+    bestseller: false,
+    pages: 32,
+    language: "Tamil",
+    format: "Cardstock",
+    reviews: [
+      { id: 29, userName: "Senthil", rating: 5, comment: "கதைகள் மிகவும் அருமையாக உள்ளன. குழந்தைகளுக்கு நல்ல ஒழுக்கத்தை போதிக்கிறது.", date: "Apr 24, 2026" },
+      { id: 30, userName: "Malar", rating: 4, comment: "நல்ல புத்தகம். படங்கள் அழகாக உள்ளன.", date: "Apr 24, 2026" }
     ]
   }
 ];
