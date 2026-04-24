@@ -31,11 +31,7 @@ const App: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [activeSupportPage, setActiveSupportPage] = useState<SupportPageType | null>(null);
-  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(() => {
-    try {
-      return localStorage.getItem('singglebee_language');
-    } catch (e) { return null; }
-  });
+  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
 
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
   const [minRating, setMinRating] = useState<number | null>(null);
@@ -453,17 +449,6 @@ const App: React.FC = () => {
           setShowShop(true);
           setSelectedProduct(null);
           setActiveSupportPage(null);
-        }}
-        selectedLanguage={selectedLanguage}
-        onLanguageSelect={(lang) => {
-          setSelectedLanguage(lang);
-          if (lang) {
-            localStorage.setItem('singglebee_language', lang);
-          } else {
-            localStorage.removeItem('singglebee_language');
-          }
-          setShowShop(true);
-          morphScrollToGrid();
         }}
         onCategorySelect={goToShop}
         onNavigateHome={resetToHome}

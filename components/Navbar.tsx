@@ -19,8 +19,6 @@ interface NavbarProps {
   onSignInClick: () => void;
   onSignOutClick: () => void;
   onNavbarSearch: (term: string) => void;
-  selectedLanguage: string | null;
-  onLanguageSelect: (lang: string | null) => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({
@@ -38,8 +36,6 @@ const Navbar: React.FC<NavbarProps> = ({
   onSignInClick,
   onSignOutClick,
   onNavbarSearch,
-  selectedLanguage,
-  onLanguageSelect,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [scrolled, setScrolled] = useState(false);
@@ -175,22 +171,6 @@ const Navbar: React.FC<NavbarProps> = ({
                     </button>
                   </div>
                 )}
-              </div>
-
-              {/* Language Toggle */}
-              <div className="flex items-center bg-gray-100/50 backdrop-blur-sm p-0.5 rounded-xl border border-gray-200/50">
-                <button
-                  onClick={() => onLanguageSelect?.('English')}
-                  className={`px-2 py-1.5 rounded-lg text-[10px] font-extrabold transition-all ${selectedLanguage === 'English' ? 'bg-zinc-900 text-brand-primary shadow-sm' : 'text-gray-400 hover:text-brand-black'}`}
-                >
-                  EN
-                </button>
-                <button
-                  onClick={() => onLanguageSelect?.('Tamil')}
-                  className={`px-2 py-1.5 rounded-lg text-[10px] font-extrabold transition-all ${selectedLanguage === 'Tamil' ? 'bg-zinc-900 text-brand-primary shadow-sm' : 'text-gray-400 hover:text-brand-black'}`}
-                >
-                  TA
-                </button>
               </div>
 
               {/* Cart Button */}
