@@ -17,6 +17,7 @@ import product16Image from './assets/product-16.jpg';
 import product17Image from './assets/product-17.jpg';
 import product18Image from './assets/product-18.jpg';
 import product19Image from './assets/product-19.jpg';
+import product20Image from './assets/product-20.png';
 import outOfStockImage from './assets/out-of-stock.png';
 
 export const MOCK_PRODUCTS: Product[] = [
@@ -381,6 +382,25 @@ export const MOCK_PRODUCTS: Product[] = [
     reviews: [
       { id: 37, userName: "Suriya", rating: 5, comment: "Space exploration stories are fascinating! My son is now dreaming of being an astronaut.", date: "Apr 24, 2026" },
       { id: 38, userName: "Pavithra", rating: 4, comment: "Very imaginative and well-written. The robot character is so cool!", date: "Apr 24, 2026" }
+    ]
+  },
+  {
+    id: 20,
+    title: "Enjoy the Space Journey",
+    author: "SINGGLEBEE TEAM",
+    price: 170,
+    rating: 4.5,
+    reviewCount: 22,
+    category: Category.STORY_BOOK,
+    image: product20Image,
+    description: "An exciting journey through space, exploring planets, stars, and galaxies, inspiring curiosity and wonder about the universe and cosmic adventures.",
+    bestseller: false,
+    pages: 28,
+    language: "English",
+    format: "Cardstock",
+    reviews: [
+      { id: 39, userName: "Senthil Kumaran", rating: 5, comment: "Beautiful book about the space journey. My kids are learning so much about planets!", date: "Apr 24, 2026" },
+      { id: 40, userName: "Meena", rating: 4, comment: "Very nice illustrations. The space journey concept is very well explained for children.", date: "Apr 24, 2026" }
     ]
   }
 ];
