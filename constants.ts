@@ -10,6 +10,7 @@ import product9Image from './assets/product-9.jpg';
 import product10Image from './assets/product-10.jpg';
 import product11Image from './assets/product-11.png';
 import product12Image from './assets/product-12.png';
+import product13Image from './assets/product-13.jpg';
 import outOfStockImage from './assets/out-of-stock.png';
 
 export const MOCK_PRODUCTS: Product[] = [
@@ -241,6 +242,25 @@ export const MOCK_PRODUCTS: Product[] = [
     reviews: [
       { id: 23, userName: "Lakshmi Priya", rating: 5, comment: "குழந்தைகளுக்கு மிகவும் பிடிக்கும் அருமையான கதை. தரம் மிக அருமை!", date: "Apr 15, 2026" },
       { id: 24, userName: "Surya Prakash", rating: 4, comment: "அண்ணன் தங்கை பாசத்தை அழகாக சொல்கிறது. நன்றி.", date: "Apr 20, 2026" }
+    ]
+  },
+  {
+    id: 13,
+    title: "Terrace Garden",
+    author: "MOHANRAJ PJ & SINGGLEBEE TEAM",
+    price: 149,
+    rating: 4.7,
+    reviewCount: 27,
+    category: Category.STORY_BOOK,
+    image: product13Image,
+    description: "A simple guide to creating a terrace garden, growing fresh plants, and enjoying nature through sustainable, space-saving urban gardening practices.",
+    bestseller: false,
+    pages: 20,
+    language: "English",
+    format: "Cardstock",
+    reviews: [
+      { id: 25, userName: "Murugan M", rating: 5, comment: "Very useful and beautifully illustrated. My children love the gardening tips!", date: "Apr 21, 2026" },
+      { id: 26, userName: "Kavitha", rating: 4, comment: "Excellent guide for small spaces. The story makes it engaging for kids.", date: "Apr 22, 2026" }
     ]
   }
 ];
