@@ -18,6 +18,7 @@ import product17Image from './assets/product-17.jpg';
 import product18Image from './assets/product-18.jpg';
 import product19Image from './assets/product-19.jpg';
 import product20Image from './assets/product-20.png';
+import product21Image from './assets/product-21.jpg';
 import outOfStockImage from './assets/out-of-stock.png';
 
 export const MOCK_PRODUCTS: Product[] = [
@@ -401,6 +402,25 @@ export const MOCK_PRODUCTS: Product[] = [
     reviews: [
       { id: 39, userName: "Senthil Kumaran", rating: 5, comment: "Beautiful book about the space journey. My kids are learning so much about planets!", date: "Apr 24, 2026" },
       { id: 40, userName: "Meena", rating: 4, comment: "Very nice illustrations. The space journey concept is very well explained for children.", date: "Apr 24, 2026" }
+    ]
+  },
+  {
+    id: 21,
+    title: "Tiny Tales of Big Magic",
+    author: "SINGGLEBEE TEAM",
+    price: 170,
+    rating: 4.6,
+    reviewCount: 27,
+    category: Category.STORY_BOOK,
+    image: product21Image,
+    description: "A charming collection of short magical stories where small moments hold big wonders, sparking imagination, joy, and meaningful lessons for young readers.",
+    bestseller: false,
+    pages: 32,
+    language: "English",
+    format: "Cardstock",
+    reviews: [
+      { id: 41, userName: "Kavitha Raj", rating: 5, comment: "Tiny tales but big on magic! My daughter loves the stories about everyday magic.", date: "Apr 24, 2026" },
+      { id: 42, userName: "Sathish", rating: 4, comment: "Very creative and magical. Perfect for bedtime reading.", date: "Apr 24, 2026" }
     ]
   }
 ];
