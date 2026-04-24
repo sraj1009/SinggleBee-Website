@@ -13,6 +13,7 @@ import product12Image from './assets/product-12.png';
 import product13Image from './assets/product-13.jpg';
 import product14Image from './assets/product-14.jpg';
 import product15Image from './assets/product-15.jpg';
+import product16Image from './assets/product-16.jpg';
 import outOfStockImage from './assets/out-of-stock.png';
 
 export const MOCK_PRODUCTS: Product[] = [
@@ -301,6 +302,25 @@ export const MOCK_PRODUCTS: Product[] = [
     reviews: [
       { id: 29, userName: "Senthil", rating: 5, comment: "கதைகள் மிகவும் அருமையாக உள்ளன. குழந்தைகளுக்கு நல்ல ஒழுக்கத்தை போதிக்கிறது.", date: "Apr 24, 2026" },
       { id: 30, userName: "Malar", rating: 4, comment: "நல்ல புத்தகம். படங்கள் அழகாக உள்ளன.", date: "Apr 24, 2026" }
+    ]
+  },
+  {
+    id: 16,
+    title: "Smart Learners on the Bus",
+    author: "SINGGLEBEE TEAM",
+    price: 190,
+    rating: 4.8,
+    reviewCount: 30,
+    category: Category.STORY_BOOK,
+    image: product16Image,
+    description: "A lively story of children learning good manners, teamwork, and safety while traveling together on a busy bus, turning everyday moments into lessons.",
+    bestseller: false,
+    pages: 24,
+    language: "English",
+    format: "Cardstock",
+    reviews: [
+      { id: 31, userName: "Karthikeyan", rating: 5, comment: "Excellent book for teaching kids about bus safety and manners. My son loves it!", date: "Apr 24, 2026" },
+      { id: 32, userName: "Anandhi", rating: 4, comment: "Very colorful and engaging. The bus theme is a big hit with children.", date: "Apr 24, 2026" }
     ]
   }
 ];
