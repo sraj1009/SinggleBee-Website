@@ -14,6 +14,7 @@ import product13Image from './assets/product-13.jpg';
 import product14Image from './assets/product-14.png';
 import product15Image from './assets/product-15.jpg';
 import product16Image from './assets/product-16.jpg';
+import product17Image from './assets/product-17.jpg';
 import outOfStockImage from './assets/out-of-stock.png';
 
 export const MOCK_PRODUCTS: Product[] = [
@@ -321,6 +322,25 @@ export const MOCK_PRODUCTS: Product[] = [
     reviews: [
       { id: 31, userName: "Karthikeyan", rating: 5, comment: "Excellent book for teaching kids about bus safety and manners. My son loves it!", date: "Apr 24, 2026" },
       { id: 32, userName: "Anandhi", rating: 4, comment: "Very colorful and engaging. The bus theme is a big hit with children.", date: "Apr 24, 2026" }
+    ]
+  },
+  {
+    id: 17,
+    title: "Science Stories for Wonder Kids",
+    author: "SINGGLEBEE TEAM",
+    price: 220,
+    rating: 4.7,
+    reviewCount: 25,
+    category: Category.STORY_BOOK,
+    image: product17Image,
+    description: "A collection of engaging science stories that spark curiosity, simplify concepts, and inspire young minds to explore, question, and discover the wonders of science.",
+    bestseller: false,
+    pages: 40,
+    language: "English",
+    format: "Cardstock",
+    reviews: [
+      { id: 33, userName: "Vijay", rating: 5, comment: "Amazing science stories! It makes complex topics so easy for kids to understand.", date: "Apr 24, 2026" },
+      { id: 34, userName: "Lakshmi", rating: 4, comment: "Very informative and well-written. My daughter is now fascinated with space!", date: "Apr 24, 2026" }
     ]
   }
 ];
