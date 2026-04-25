@@ -7,7 +7,13 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "backend:install": "cd backend && npm install",
+    "backend:dev": "cd backend && npm run dev",
+    "admin:install": "cd admin && npm install",
+    "admin:dev": "cd admin && npm run dev",
+    "db:setup": "cd backend && npm run db:setup",
+    "full-stack": "npm run backend:install && npm run admin:install && npm run db:setup && echo '\\n✅ Full-stack setup complete!\\n\\nTo start the application:\\n  - Backend: cd backend && npm run dev (http://localhost:3000)\\n  - Admin: cd admin && npm run dev (http://localhost:5174)\\n  - Storefront: npm run dev (http://localhost:5173)\\n' || echo '\\n⚠️ Setup completed with warnings. Check output above for details.'"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
