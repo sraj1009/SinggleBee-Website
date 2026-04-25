@@ -2,12 +2,7 @@
 # Dependencies
 node_modules/
 
-# Build outputs
-dist/
-build/
-target/
-
-# Environment variables
+# Environment
 .env
 .env.local
 .env.*
@@ -21,25 +16,48 @@ __pycache__/
 env/
 venv/
 .venv/
-.ENV
-.python-version
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+
+# Prisma
+prisma/migrations/
+prisma/schema.prisma.bak
+
+# Build outputs
+dist/
+build/
+*.out
+*.exe
+*.dll
+*.so
+*.a
+*.obj
 
 # Logs
 *.log
 
-# OS generated files
-.DS_Store
-Thumbs.db
-
-# IDE files
+# Editor
 .vscode/
 .idea/
 *.swp
 *.swo
+*.tmp
 
-# Prisma
-prisma/migrations/
+# OS
+.DS_Store
+Thumbs.db
 
-# TypeScript
-*.tsbuildinfo
+# Testing
+coverage/
+htmlcov/
+.pytest_cache/
+.mypy_cache/
 ```

@@ -1,112 +1,113 @@
 import { Router } from 'express';
-import { prisma } from '../models/prisma.js';
+import adminService from '../services/admin.service.js';
 import { authenticate, authorize, AuthRequest } from '../middleware/auth.js';
-import { v4 as uuidv4 } from 'uuid';
+import { z } from 'zod';
 
 const router = Router();
+
+// Validation schemas
+const userUpdateSchema = z.object({
+  role: z.enum(['CUSTOMER', 'ADMIN', 'VENDOR', 'SUPPORT']).optional(),
+  isActive: z.boolean().optional(),
+  emailVerified: z.boolean().optional(),
+});
+
+const productCreateSchema = z.object({
+  name: z.string().min(1),
+  description: z.string().optional(),
+  price: z.number().positive(),
+  stock: z.number().int().nonnegative().default(0),
+  sku: z.string().optional(),
+  status: z.enum(['DRAFT', 'ACTIVE', 'ARCHIVED', 'OUT_OF_STOCK']).optional(),
+  categoryId: z.string().optional(),
+  brandId: z.string().optional(),
+});
+
+const orderStatusUpdateSchema = z.object({
+  status: z.enum(['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED']).optional(),
+  trackingNumber: z.string().optional(),
+  carrier: z.string().optional(),
+  shippingMethod: z.string().optional(),
+});
+
+// ============================================
+// DASHBOARD ROUTES
+// ============================================
 
 // GET /api/v1/admin/dashboard - Get dashboard stats
 router.get('/dashboard', authenticate, authorize('ADMIN'), async (req: AuthRequest, res, next) => {
   try {
-    const [totalUsers, totalOrders, totalProducts, totalRevenue] = await Promise.all([
-      prisma.user.count(),
-      prisma.order.count(),
-      prisma.product.count(),
-      prisma.order.aggregate({
-        where: { paymentStatus: 'PAID' },
-        _sum: { total: true },
-      }),
-    ]);
-
-    // Recent orders
-    const recentOrders = await prisma.order.findMany({
-      take: 5,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        user: { select: { firstName: true, lastName: true, email: true } },
-        items: { take: 2 },
-      },
-    });
-
-    // Low stock products
-    const lowStockProducts = await prisma.product.findMany({
-      where: { 
-        stock: { lte: 10 },
-        status: 'ACTIVE',
-      },
-      take: 5,
-      orderBy: { stock: 'asc' },
-    });
-
-    res.json({
-      success: true,
-      data: {
-        stats: {
-          totalUsers,
-          totalOrders,
-          totalProducts,
-          totalRevenue: Number(totalRevenue._sum.total || 0),
-        },
-        recentOrders,
-        lowStockProducts,
-      },
-    });
+    const data = await adminService.getDashboardStats();
+    res.json({ success: true, data });
   } catch (error) {
     next(error);
   }
 });
 
+// ============================================
+// USER MANAGEMENT ROUTES
+// ============================================
+
 // GET /api/v1/admin/users - List all users
 router.get('/users', authenticate, authorize('ADMIN'), async (req: AuthRequest, res, next) => {
   try {
     const { page = '1', limit = '20', search, role } = req.query;
-    
-    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
-    
-    const where: any = {};
-    if (search) {
-      where.OR = [
-        { email: { contains: search as string, mode: 'insensitive' } },
-        { firstName: { contains: search as string, mode: 'insensitive' } },
-        { lastName: { contains: search as string, mode: 'insensitive' } },
-      ];
-    }
-    if (role) {
-      where.role = role;
-    }
-
-    const [users, total] = await Promise.all([
-      prisma.user.findMany({
-        where,
-        skip,
-        take: parseInt(limit as string),
-        orderBy: { createdAt: 'desc' },
-        select: {
-          id: true,
-          email: true,
-          firstName: true,
-          lastName: true,
-          role: true,
-          isActive: true,
-          emailVerified: true,
-          createdAt: true,
-          lastLoginAt: true,
-        },
-      }),
-      prisma.user.count({ where }),
-    ]);
-
-    res.json({
-      success: true,
-      data: users,
-      pagination: {
-        page: parseInt(page as string),
-        limit: parseInt(limit as string),
-        total,
-        totalPages: Math.ceil(total / parseInt(limit as string)),
-      },
-    });
+    const data = await adminService.getUsers(
+      parseInt(page as string),
+      parseInt(limit as string),
+      search as string,
+      role as string
+    );
+    res.json({ success: true, ...data });
   } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/v1/admin/users/:id - Get user details
+router.get('/users/:id', authenticate, authorize('ADMIN'), async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+    const user = await adminService.getUserById(id);
+    res.json({ success: true, data: user });
+  } catch (error: any) {
+    if (error.message === 'User not found') {
+      res.status(404).json({ success: false, message: error.message });
+      return;
+    }
+    next(error);
+  }
+});
+
+// POST /api/v1/admin/users - Create new user
+router.post('/users', authenticate, authorize('ADMIN'), async (req: AuthRequest, res, next) => {
+  try {
+    const { email, password, firstName, lastName, role, phone } = req.body;
+    
+    if (!email || !password) {
+      res.status(400).json({ success: false, message: 'Email and password are required' });
+      return;
+    }
+
+    const user = await adminService.createUser({
+      email,
+      password,
+      firstName,
+      lastName,
+      role,
+      phone,
+    });
+    
+    res.status(201).json({
+      success: true,
+      message: 'User created successfully',
+      data: user,
+    });
+  } catch (error: any) {
+    if (error.message === 'Email already exists') {
+      res.status(409).json({ success: false, message: error.message });
+      return;
+    }
     next(error);
   }
 });
@@ -115,68 +116,181 @@ router.get('/users', authenticate, authorize('ADMIN'), async (req: AuthRequest, 
 router.put('/users/:id', authenticate, authorize('ADMIN'), async (req: AuthRequest, res, next) => {
   try {
     const { id } = req.params;
-    const { role, isActive, emailVerified } = req.body;
-
-    const user = await prisma.user.update({
-      where: { id },
-      data: { role, isActive, emailVerified },
-      select: {
-        id: true,
-        email: true,
-        firstName: true,
-        lastName: true,
-        role: true,
-        isActive: true,
-        emailVerified: true,
-      },
-    });
-
+    const validatedData = userUpdateSchema.parse(req.body);
+    const user = await adminService.updateUser(id, validatedData);
+    
     res.json({
       success: true,
       message: 'User updated successfully',
       data: user,
+    });
+  } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ success: false, message: 'Invalid data', errors: error.errors });
+      return;
+    }
+    next(error);
+  }
+});
+
+// DELETE /api/v1/admin/users/:id - Delete user
+router.delete('/users/:id', authenticate, authorize('ADMIN'), async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await adminService.deleteUser(id);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ============================================
+// PRODUCT MANAGEMENT ROUTES
+// ============================================
+
+// GET /api/v1/admin/products - List all products
+router.get('/products', authenticate, authorize('ADMIN'), async (req: AuthRequest, res, next) => {
+  try {
+    const { page = '1', limit = '20', status, search, category } = req.query;
+    const data = await adminService.getProducts(
+      parseInt(page as string),
+      parseInt(limit as string),
+      status as string,
+      search as string,
+      category as string
+    );
+    res.json({ success: true, ...data });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/v1/admin/products/:id - Get product details
+router.get('/products/:id', authenticate, authorize('ADMIN'), async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+    const product = await adminService.getProductById(id);
+    res.json({ success: true, data: product });
+  } catch (error: any) {
+    if (error.message === 'Product not found') {
+      res.status(404).json({ success: false, message: error.message });
+      return;
+    }
+    next(error);
+  }
+});
+
+// POST /api/v1/admin/products - Create new product
+router.post('/products', authenticate, authorize('ADMIN'), async (req: AuthRequest, res, next) => {
+  try {
+    const data = req.body;
+    const product = await adminService.createProduct(data);
+    
+    res.status(201).json({
+      success: true,
+      message: 'Product created successfully',
+      data: product,
     });
   } catch (error) {
     next(error);
   }
 });
 
+// PUT /api/v1/admin/products/:id - Update product
+router.put('/products/:id', authenticate, authorize('ADMIN'), async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+    const data = req.body;
+    const product = await adminService.updateProduct(id, data);
+    
+    res.json({
+      success: true,
+      message: 'Product updated successfully',
+      data: product,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// DELETE /api/v1/admin/products/:id - Delete product
+router.delete('/products/:id', authenticate, authorize('ADMIN'), async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await adminService.deleteProduct(id);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// PATCH /api/v1/admin/products/:id/stock - Update product stock
+router.patch('/products/:id/stock', authenticate, authorize('ADMIN'), async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+    const { stock } = req.body;
+    
+    if (typeof stock !== 'number' || stock < 0) {
+      res.status(400).json({ success: false, message: 'Invalid stock value' });
+      return;
+    }
+
+    const product = await adminService.updateProductStock(id, stock);
+    res.json({ success: true, data: product });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/v1/admin/products/bulk-update - Bulk update products
+router.post('/products/bulk-update', authenticate, authorize('ADMIN'), async (req: AuthRequest, res, next) => {
+  try {
+    const { ids, data } = req.body;
+    
+    if (!Array.isArray(ids) || ids.length === 0) {
+      res.status(400).json({ success: false, message: 'Product IDs are required' });
+      return;
+    }
+
+    const result = await adminService.bulkUpdateProducts(ids, data);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ============================================
+// ORDER & LOGISTICS MANAGEMENT ROUTES
+// ============================================
+
 // GET /api/v1/admin/orders - List all orders
 router.get('/orders', authenticate, authorize('ADMIN'), async (req: AuthRequest, res, next) => {
   try {
-    const { page = '1', limit = '20', status, paymentStatus } = req.query;
-    
-    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
-    
-    const where: any = {};
-    if (status) where.status = status;
-    if (paymentStatus) where.paymentStatus = paymentStatus;
-
-    const [orders, total] = await Promise.all([
-      prisma.order.findMany({
-        where,
-        skip,
-        take: parseInt(limit as string),
-        orderBy: { createdAt: 'desc' },
-        include: {
-          user: { select: { email: true, firstName: true, lastName: true } },
-          items: { take: 3 },
-        },
-      }),
-      prisma.order.count({ where }),
-    ]);
-
-    res.json({
-      success: true,
-      data: orders,
-      pagination: {
-        page: parseInt(page as string),
-        limit: parseInt(limit as string),
-        total,
-        totalPages: Math.ceil(total / parseInt(limit as string)),
-      },
-    });
+    const { page = '1', limit = '20', status, paymentStatus, userId } = req.query;
+    const data = await adminService.getOrders(
+      parseInt(page as string),
+      parseInt(limit as string),
+      status as string,
+      paymentStatus as string,
+      userId as string
+    );
+    res.json({ success: true, ...data });
   } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/v1/admin/orders/:id - Get order details
+router.get('/orders/:id', authenticate, authorize('ADMIN'), async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+    const order = await adminService.getOrderById(id);
+    res.json({ success: true, data: order });
+  } catch (error: any) {
+    if (error.message === 'Order not found') {
+      res.status(404).json({ success: false, message: error.message });
+      return;
+    }
     next(error);
   }
 });
@@ -185,22 +299,56 @@ router.get('/orders', authenticate, authorize('ADMIN'), async (req: AuthRequest,
 router.put('/orders/:id/status', authenticate, authorize('ADMIN'), async (req: AuthRequest, res, next) => {
   try {
     const { id } = req.params;
-    const { status, trackingNumber, carrier } = req.body;
-
-    const updateData: any = { status };
-    if (trackingNumber) updateData.trackingNumber = trackingNumber;
-    if (carrier) updateData.carrier = carrier;
-    if (status === 'SHIPPED') updateData.shippedAt = new Date();
-    if (status === 'DELIVERED') updateData.deliveredAt = new Date();
-
-    const order = await prisma.order.update({
-      where: { id },
-      data: updateData,
-    });
-
+    const validatedData = orderStatusUpdateSchema.parse(req.body);
+    const order = await adminService.updateOrderStatus(id, validatedData);
+    
     res.json({
       success: true,
-      message: 'Order status updated',
+      message: 'Order status updated successfully',
+      data: order,
+    });
+  } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ success: false, message: 'Invalid data', errors: error.errors });
+      return;
+    }
+    next(error);
+  }
+});
+
+// PUT /api/v1/admin/orders/:id/payment-status - Update payment status
+router.put('/orders/:id/payment-status', authenticate, authorize('ADMIN'), async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+    const { paymentStatus } = req.body;
+    
+    if (!paymentStatus) {
+      res.status(400).json({ success: false, message: 'Payment status is required' });
+      return;
+    }
+
+    const order = await adminService.updateOrderPaymentStatus(id, paymentStatus);
+    res.json({ success: true, data: order });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/v1/admin/orders/:id/tracking - Add tracking info
+router.post('/orders/:id/tracking', authenticate, authorize('ADMIN'), async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+    const { trackingNumber, carrier, shippingMethod } = req.body;
+    
+    if (!trackingNumber || !carrier) {
+      res.status(400).json({ success: false, message: 'Tracking number and carrier are required' });
+      return;
+    }
+
+    const order = await adminService.addTrackingInfo(id, { trackingNumber, carrier, shippingMethod });
+    res.json({
+      success: true,
+      message: 'Tracking information added successfully',
       data: order,
     });
   } catch (error) {
@@ -208,47 +356,70 @@ router.put('/orders/:id/status', authenticate, authorize('ADMIN'), async (req: A
   }
 });
 
-// GET /api/v1/admin/products - List all products (including drafts)
-router.get('/products', authenticate, authorize('ADMIN'), async (req: AuthRequest, res, next) => {
+// GET /api/v1/admin/orders/shipment/pending - Get orders pending shipment
+router.get('/orders/shipment/pending', authenticate, authorize('ADMIN'), async (req: AuthRequest, res, next) => {
   try {
-    const { page = '1', limit = '20', status, search } = req.query;
+    const { status } = req.query;
+    const orders = await adminService.getOrdersForShipment(status as string);
+    res.json({ success: true, data: orders });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/v1/admin/analytics/shipping - Get shipping analytics
+router.get('/analytics/shipping', authenticate, authorize('ADMIN'), async (req: AuthRequest, res, next) => {
+  try {
+    const analytics = await adminService.getShippingAnalytics();
+    res.json({ success: true, data: analytics });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ============================================
+// ANALYTICS & REPORTS ROUTES
+// ============================================
+
+// GET /api/v1/admin/analytics/sales - Get sales analytics
+router.get('/analytics/sales', authenticate, authorize('ADMIN'), async (req: AuthRequest, res, next) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const analytics = await adminService.getSalesAnalytics(
+      startDate ? new Date(startDate as string) : undefined,
+      endDate ? new Date(endDate as string) : undefined
+    );
+    res.json({ success: true, data: analytics });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/v1/admin/reports/orders/export - Export orders
+router.get('/reports/orders/export', authenticate, authorize('ADMIN'), async (req: AuthRequest, res, next) => {
+  try {
+    const { format = 'csv', status, paymentStatus, startDate, endDate } = req.query;
     
-    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
-    
-    const where: any = {};
-    if (status) where.status = status;
-    if (search) {
-      where.OR = [
-        { name: { contains: search as string, mode: 'insensitive' } },
-        { sku: { contains: search as string, mode: 'insensitive' } },
-      ];
+    const filters: any = {};
+    if (status) filters.status = status;
+    if (paymentStatus) filters.paymentStatus = paymentStatus;
+    if (startDate || endDate) {
+      filters.createdAt = {};
+      if (startDate) filters.createdAt.gte = new Date(startDate as string);
+      if (endDate) filters.createdAt.lte = new Date(endDate as string);
     }
 
-    const [products, total] = await Promise.all([
-      prisma.product.findMany({
-        where,
-        skip,
-        take: parseInt(limit as string),
-        orderBy: { createdAt: 'desc' },
-        include: {
-          categories: true,
-          brand: true,
-          images: { where: { isPrimary: true }, take: 1 },
-        },
-      }),
-      prisma.product.count({ where }),
-    ]);
-
-    res.json({
-      success: true,
-      data: products,
-      pagination: {
-        page: parseInt(page as string),
-        limit: parseInt(limit as string),
-        total,
-        totalPages: Math.ceil(total / parseInt(limit as string)),
-      },
-    });
+    const data = await adminService.exportOrders(format as 'csv' | 'json', filters);
+    
+    if (format === 'csv') {
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename=orders-${Date.now()}.csv`);
+    } else {
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename=orders-${Date.now()}.json`);
+    }
+    
+    res.send(data);
   } catch (error) {
     next(error);
   }
