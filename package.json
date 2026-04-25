@@ -2,18 +2,26 @@
   "name": "singglebee",
   "author": "singglebee",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "Professional Full-Stack E-Commerce Platform",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "install:all": "npm install && cd backend && npm install && cd ../admin && npm install",
     "backend:install": "cd backend && npm install",
     "backend:dev": "cd backend && npm run dev",
     "admin:install": "cd admin && npm install",
     "admin:dev": "cd admin && npm run dev",
-    "db:setup": "cd backend && npm run db:setup",
-    "full-stack": "npm run backend:install && npm run admin:install && npm run db:setup && echo '\\n✅ Full-stack setup complete!\\n\\nTo start the application:\\n  - Backend: cd backend && npm run dev (http://localhost:3000)\\n  - Admin: cd admin && npm run dev (http://localhost:5174)\\n  - Storefront: npm run dev (http://localhost:5173)\\n' || echo '\\n⚠️ Setup completed with warnings. Check output above for details.'"
+    "db:generate": "cd backend && npx prisma generate",
+    "db:migrate": "cd backend && npx prisma migrate dev --skip-generate",
+    "db:seed": "cd backend && npx prisma db seed",
+    "db:setup": "npm run db:generate && npm run db:migrate && npm run db:seed",
+    "backend": "cd backend && npm run dev",
+    "admin": "cd admin && npm run dev",
+    "full-stack": "npm run install:all && npm run db:setup && npm run dev:all",
+    "dev:all": "npx concurrently --kill-others-on-fail --names \"BACKEND,ADMIN,STORE\" --prefix-colors \"green,cyan,blue\" \"npm run backend\" \"npm run admin\" \"npm run dev\""
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -25,6 +33,7 @@
   "devDependencies": {
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.0",
+    "concurrently": "^8.2.2",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
   }

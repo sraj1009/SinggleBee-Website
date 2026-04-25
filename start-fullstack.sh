@@ -1,68 +1,101 @@
 #!/bin/bash
 
-# SinggleBee Full-Stack Startup Script
-# This script starts the backend, admin dashboard, and storefront concurrently
+# SinggleBee E-Commerce Full-Stack Startup Script
+# This script starts Backend, Admin Dashboard, and Storefront simultaneously
 
-echo "🐝 Starting SinggleBee E-Commerce Platform..."
+set -e
+
+echo "🐝 SinggleBee E-Commerce Platform"
+echo "=================================="
 echo ""
 
-# Check if node_modules exist, if not install dependencies
-if [ ! -d "backend/node_modules" ]; then
-    echo "📦 Installing backend dependencies..."
-    cd backend && npm install
-    cd ..
-fi
+# Check if node_modules exist in each directory
+install_deps() {
+    echo "📦 Checking dependencies..."
+    
+    if [ ! -d "node_modules" ]; then
+        echo "   Installing root dependencies..."
+        npm install
+    fi
+    
+    if [ ! -d "backend/node_modules" ]; then
+        echo "   Installing backend dependencies..."
+        cd backend && npm install && cd ..
+    fi
+    
+    if [ ! -d "admin/node_modules" ]; then
+        echo "   Installing admin dependencies..."
+        cd admin && npm install && cd ..
+    fi
+    
+    echo "✅ All dependencies installed"
+}
 
-if [ ! -d "admin/node_modules" ]; then
-    echo "📦 Installing admin dashboard dependencies..."
-    cd admin && npm install
-    cd ..
-fi
-
-# Check if database is set up
-if [ ! -f "backend/prisma/dev.db" ] && [ ! -f "backend/.env" ]; then
-    echo "⚙️  Setting up database..."
+# Setup database
+setup_db() {
+    echo ""
+    echo "🗄️  Setting up database..."
     cd backend
-    npm run prisma:generate
-    npm run prisma:migrate
-    npm run prisma:seed
+    npx prisma generate
+    npx prisma migrate dev --skip-generate
+    npx prisma db seed
     cd ..
-fi
+    echo "✅ Database setup complete"
+}
 
-echo ""
-echo "🚀 Starting all services..."
-echo ""
-echo "   Backend API:    http://localhost:3000"
-echo "   Admin Dashboard: http://localhost:5174"
-echo "   Storefront:      http://localhost:5173"
-echo ""
-echo "   Admin Credentials:"
-echo "   Email: admin@singglebee.com"
-echo "   Password: Secure#DB_2026!Access"
-echo ""
-echo "Press Ctrl+C to stop all services"
-echo ""
+# Start all services
+start_services() {
+    echo ""
+    echo "🚀 Starting all services..."
+    echo ""
+    echo "=================================="
+    echo "📊 Services Running:"
+    echo "   🔙 Backend API:    http://localhost:3000"
+    echo "   👨‍💼 Admin Dashboard: http://localhost:5174"
+    echo "   🛒 Storefront:      http://localhost:5173"
+    echo ""
+    echo "🔐 Admin Credentials:"
+    echo "   Email:    admin@singglebee.com"
+    echo "   Password: Secure#DB_2026!Access"
+    echo "=================================="
+    echo ""
+    
+    # Use concurrently to run all services
+    npx concurrently --kill-others-on-fail \
+        --names "BACKEND,ADMIN,STORE" \
+        --prefix-colors "green,cyan,blue" \
+        --prefix "[{name}]" \
+        "cd backend && npm run dev" \
+        "cd admin && npm run dev" \
+        "npm run dev"
+}
 
-# Start all services concurrently
-# Using trap to clean up all processes on exit
-trap "kill 0" EXIT
+# Main execution
+main() {
+    case "${1:-full}" in
+        "full")
+            install_deps
+            setup_db
+            start_services
+            ;;
+        "start")
+            start_services
+            ;;
+        "deps")
+            install_deps
+            ;;
+        "db")
+            setup_db
+            ;;
+        *)
+            echo "Usage: $0 [full|start|deps|db]"
+            echo "  full  - Install deps, setup DB, and start all (default)"
+            echo "  start - Start all services (assumes deps and DB are ready)"
+            echo "  deps  - Install all dependencies only"
+            echo "  db    - Setup database only"
+            exit 1
+            ;;
+    esac
+}
 
-# Start backend in background
-cd backend && npm run dev &
-BACKEND_PID=$!
-cd ..
-
-# Wait a moment for backend to start
-sleep 3
-
-# Start admin dashboard in background
-cd admin && npm run dev &
-ADMIN_PID=$!
-cd ..
-
-# Start storefront in background
-npm run dev &
-STOREFRONT_PID=$!
-
-# Wait for all processes
-wait $BACKEND_PID $ADMIN_PID $STOREFRONT_PID
+main "$@"
