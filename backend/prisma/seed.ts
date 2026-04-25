@@ -121,12 +121,138 @@ async function seedBrands() {
   }
 }
 
+async function seedSampleProducts() {
+  try {
+    const category = await prisma.category.findFirst({ where: { slug: 'books' } });
+    const brand = await prisma.brand.findFirst({ where: { slug: 'singglebee-publishing' } });
+
+    if (!category || !brand) return;
+
+    const products = [
+      {
+        name: 'The Art of Poetry',
+        slug: 'the-art-of-poetry',
+        description: 'A comprehensive guide to understanding and writing poetry.',
+        shortDescription: 'Master the art of poetry writing',
+        price: 24.99,
+        comparePrice: 29.99,
+        status: 'ACTIVE',
+        featured: true,
+        publishedAt: new Date(),
+        categoryId: category.id,
+        brandId: brand.id,
+        tags: ['poetry', 'writing', 'education'],
+      },
+      {
+        name: 'Tales of Adventure',
+        slug: 'tales-of-adventure',
+        description: 'Exciting adventure stories for all ages.',
+        shortDescription: 'Thrilling adventure collection',
+        price: 19.99,
+        comparePrice: 24.99,
+        status: 'ACTIVE',
+        featured: true,
+        publishedAt: new Date(),
+        categoryId: category.id,
+        brandId: brand.id,
+        tags: ['adventure', 'fiction', 'stories'],
+      },
+      {
+        name: 'Learning Mathematics',
+        slug: 'learning-mathematics',
+        description: 'Make math fun and easy to understand.',
+        shortDescription: 'Fun approach to learning math',
+        price: 34.99,
+        status: 'ACTIVE',
+        featured: false,
+        publishedAt: new Date(),
+        categoryId: category.id,
+        brandId: brand.id,
+        tags: ['education', 'mathematics', 'learning'],
+      },
+    ];
+
+    for (const product of products) {
+      const created = await prisma.product.create({
+        data: {
+          ...product,
+          images: {
+            create: {
+              url: 'https://via.placeholder.com/400x400?text=' + encodeURIComponent(product.name),
+              altText: product.name,
+              position: 0,
+            },
+          },
+        },
+      });
+      console.log(`✅ Product created: ${created.name}`);
+    }
+  } catch (error) {
+    console.error('❌ Error seeding products:', error);
+  }
+}
+
+async function seedCoupons() {
+  try {
+    const coupons = [
+      {
+        code: 'WELCOME10',
+        description: 'Welcome discount for new customers',
+        type: 'PERCENTAGE',
+        value: 10,
+        minOrderAmount: 50,
+        maxDiscountAmount: 20,
+        usageLimit: 1000,
+        startsAt: new Date(),
+        expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
+        isActive: true,
+      },
+      {
+        code: 'SUMMER25',
+        description: 'Summer sale discount',
+        type: 'PERCENTAGE',
+        value: 25,
+        minOrderAmount: 100,
+        maxDiscountAmount: 50,
+        usageLimit: 500,
+        startsAt: new Date(),
+        expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 days
+        isActive: true,
+      },
+      {
+        code: 'FREESHIP',
+        description: 'Free shipping on any order',
+        type: 'FIXED',
+        value: 9.99,
+        minOrderAmount: 75,
+        usageLimit: null,
+        startsAt: new Date(),
+        expiresAt: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000), // 180 days
+        isActive: true,
+      },
+    ];
+
+    for (const coupon of coupons) {
+      await prisma.coupon.upsert({
+        where: { code: coupon.code },
+        update: {},
+        create: coupon,
+      });
+      console.log(`✅ Coupon created: ${coupon.code}`);
+    }
+  } catch (error) {
+    console.error('❌ Error seeding coupons:', error);
+  }
+}
+
 async function main() {
   console.log('🌱 Starting database seeding...\n');
   
   await seedAdminUser();
   await seedCategories();
   await seedBrands();
+  await seedSampleProducts();
+  await seedCoupons();
   
   console.log('\n✨ Database seeding completed successfully!');
 }

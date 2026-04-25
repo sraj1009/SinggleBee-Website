@@ -2,12 +2,6 @@
 # Dependencies
 node_modules/
 
-# Build outputs
-dist/
-build/
-coverage/
-htmlcov/
-
 # Environment variables
 .env
 .env.local
@@ -16,25 +10,18 @@ htmlcov/
 # IDE files
 .vscode/
 .idea/
-*.swp
-*.swo
-*.tmp
 
-# Python cache
+# Logs
+*.log
+
+# Python cache (if present in project)
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-# Logs
-*.log
-
-# Coverage
-.coverage
-.mypy_cache/
-.pytest_cache/
-
-# OS generated files
-.DS_Store
-Thumbs.db
+# Build outputs (if present in project)
+dist/
+build/
+target/
 ```
