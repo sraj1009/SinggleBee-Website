@@ -89,7 +89,7 @@ const Navbar: React.FC<NavbarProps> = ({
       <div className="bg-brand-black text-brand-primary text-[9px] sm:text-[10px] md:text-xs font-bold py-1 sm:py-1.5 overflow-hidden relative border-b border-white/10">
         <div className="w-full h-full flex items-center">
           <span className="whitespace-nowrap animate-marquee-one">
-            🚚 Delivery is free for purchase above ₹1499 ✨ For outside India orders contact our whatsapp no. 9176008087 or gmail singglebee.rsventures@gmail.com ✨
+            🚚 Delivery is free for purchase above ₹1499 ✨ For outside India orders contact our whatsapp no. 9176008087 or EMail: singglebee.rsventures@gmail.com ✨
           </span>
         </div>
       </div>
